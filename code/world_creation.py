@@ -17,10 +17,14 @@ FPS = 60 # frame rate
 
 # game variables
 GRAVITY = 0.75 # effects how quickly you fall down after jump
+SCROLL_TRESH = 200 # if you get within 200 pixels of the edge, the screen will move
 ROWS = 16 # rows of the level
 COLS = 150 # colums of the level
 TILE_SIZE = SCREEN_HEIGHT // ROWS  # size of the tiles to create levels with should be screen height/ number of rows
 TILE_TYPES = 21 # there are 21 different tile types
+
+screen_scroll = 0
+bg_scroll = 0
 level = 1
 
 
@@ -30,6 +34,9 @@ moving_right = False
 
 
 # load images
+maple_img = pygame.image.load('img/background/maplestory1.png').convert_alpha() # If you add a second image, the order matters, img are put over each other
+maple_img = pygame.transform.scale(maple_img, (SCREEN_WIDTH, SCREEN_HEIGHT))  # change image to size of window
+
 # store tiles in list
 img_list = [] # tile images
 for x in range(TILE_TYPES):
@@ -38,17 +45,15 @@ for x in range(TILE_TYPES):
     img_list.append(img)  # put images in a list
 
 
-
-# back_img = pygame.image.load('img/background1.png') # If you add a second image, the order matters, img are put over each other
-
-
 # colors
 BG = (99, 68, 191)
 RED = (255, 0, 0)
 
+# TODO: Change background to different images you draw (a tree, the sky, etc)
 def draw_bg(): # draw the background
     screen.fill(BG)
-    pygame.draw.line(screen, RED, (0, 300), (SCREEN_WIDTH, 300)) # draw line in game (display window, color and start and end x & y coordinates)
+    screen.blit(maple_img, (0,0))
+
 
 
 # Start with player character
@@ -84,6 +89,7 @@ class Fighter(pygame.sprite.Sprite): # Create class for fighters
     def move(self, moving_left, moving_right):
 
         # reset movement of the variables
+        screen_scroll = 0 # no scrolling by default
         dx = 0 # change in x
         dy = 0 # change in y
 
@@ -132,9 +138,19 @@ class Fighter(pygame.sprite.Sprite): # Create class for fighters
         self.rect.x += dx # update position by dx
         self.rect.y += dy # update position by dy
 
+        # update scroll based on the position of the player
+        if self.char_type == 'player': # only if character is player
+            # if you are about to hit border of the screen: right of rect is > screen width - 200 pixels or left side is smaller than the treshold (cause x coordinate star with 0)
+            if self.rect.right > SCREEN_WIDTH - SCROLL_TRESH or self.rect.left < SCROLL_TRESH:
+                self.rect.x -= dx # the change becomes 0, thus you stay in the same place
+                screen_scroll = -dx  # move the screen to the opposite side of where the player is going
+
+            return screen_scroll # we need to use this later thus need to return it
 
 
     def draw(self): # last thing you want to happen
+        if self.char_type == 'enemy': # if enemy
+            self.rect.x += screen_scroll  # move x coordinate of enemies relative to players movement
         # screen.blit : Put image of player on screen with coordinates of self.rect
         # first argument (self.image) : what image
         # Second argument (self.flip) : if True, image will be flipped on the x axis
@@ -185,9 +201,10 @@ class World():
 
         return player # later add healthbar
 
-    # draw the tiles, thus map
+    # draw the tiles, thus map & fix the movement of the map
     def draw(self):
         for tile in self.obstacle_list:
+            tile[1][0] += screen_scroll # move x coordinate of all tiles to the opposite change of direction of the player
             screen.blit(tile[0], tile[1]) # tile was tuple with image in first index and coordinates in second index
 
 
@@ -200,6 +217,8 @@ class Decoration(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height())) # devide by 2 because it's in the middle
 
+    def update(self):
+        self.rect.x += screen_scroll # move decoration relative to players movement
 # Create water
 class Water(pygame.sprite.Sprite):
     def __init__(self, img, x, y):
@@ -207,6 +226,9 @@ class Water(pygame.sprite.Sprite):
         self.image = img
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height())) # devide by 2 because it's in the middle
+
+        def update(self):
+            self.rect.x += screen_scroll  # move water relative to players movement
 
 # create Exit
 class Exit(pygame.sprite.Sprite):
@@ -216,6 +238,8 @@ class Exit(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height())) # devide by 2 because it's in the middle
 
+    def update(self):
+        self.rect.x += screen_scroll  # move exit relative to players movement
 
 # Create groups of sprite
 enemy_group = pygame.sprite.Group()
@@ -260,7 +284,7 @@ while run:
     for enemy in enemy_group:
         enemy.draw()
 
-    player.move(moving_left, moving_right)
+    screen_scroll = player.move(moving_left, moving_right)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT: # If you click the x
