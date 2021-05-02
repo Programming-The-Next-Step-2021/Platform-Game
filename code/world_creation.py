@@ -227,8 +227,8 @@ class Water(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height())) # devide by 2 because it's in the middle
 
-        def update(self):
-            self.rect.x += screen_scroll  # move water relative to players movement
+    def update(self):
+        self.rect.x += screen_scroll  # move water relative to players movement
 
 # create Exit
 class Exit(pygame.sprite.Sprite):
@@ -283,6 +283,14 @@ while run:
 
     for enemy in enemy_group:
         enemy.draw()
+
+    # draw groups
+    exit_group.update()
+    decoration_group.update()
+    water_group.update()
+    exit_group.draw(screen)
+    decoration_group.draw(screen)
+    water_group.draw(screen)
 
     screen_scroll = player.move(moving_left, moving_right)
 
