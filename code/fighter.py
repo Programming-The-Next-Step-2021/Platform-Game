@@ -1,5 +1,6 @@
 from config import *
 import pygame
+import random
 
 
 # Start with player character
@@ -30,6 +31,11 @@ class Fighter(pygame.sprite.Sprite): # Create class for fighters
         self.rect.center = (x, y)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+
+        # ai specific variables
+        self.move_counter = 0
+        self.idling = False
+        self.idling_counter = 0
 
 
     def move(self, moving_left, moving_right, obstacle_list):
@@ -92,6 +98,38 @@ class Fighter(pygame.sprite.Sprite): # Create class for fighters
                 screen_scroll = -dx  # move the screen to the opposite side of where the player is going
 
             return screen_scroll # we need to use this later thus need to return it
+
+    def update(self): # TODO: ADD UPDATE FUNCTION
+       pass
+
+    def ai(self, obstacle_list):
+        # if self.alive and player.alive:
+
+            # start idling for 1/200 probability
+            if self.idling == False and random.randint(1,200) == 1: # if random number between 1 and 200 == 1
+                self.idling = True # idling is true
+                self.idling_counter = 50
+
+            if self.idling == False: # if they are not idling -> move
+                if self.direction == 1: # if going to right direction
+                    ai_moving_right = True # ai is moving right
+                else:
+                    ai_moving_right = False
+                ai_moving_left = not ai_moving_right
+                self.move(ai_moving_left, ai_moving_right, obstacle_list)
+                self.move_counter += 1
+
+                if self.move_counter > TILE_SIZE: # if enemies walk more than 1 tile
+                    self.direction *= -1 # flip and walk the other way
+                    self.move_counter *= -1
+
+            else: # if they are idling -> don't move
+                self.idling_counter -= 1 # start with 50
+                if self.idling_counter <= 0: # once counter = 0
+                    self.idling = False # start walking again
+
+
+
 
 
     def draw(self, screen, screen_scroll): # last thing you want to happen

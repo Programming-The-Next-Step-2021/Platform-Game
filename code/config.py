@@ -13,6 +13,10 @@ ROWS = 16 # rows of the level
 COLS = 150 # colums of the level
 TILE_SIZE = SCREEN_HEIGHT // ROWS  # size of the tiles to create levels with should be screen height/ number of rows
 TILE_TYPES = 21 # there are 21 different tile types
+PLAYER_SCALE = 0.1
+PLAYER_SPEED = 5
+ENEMY_SCALE = 0.6
+ENEMY_SPEED = 3
 
 # colors
 BG = (99, 68, 191)
