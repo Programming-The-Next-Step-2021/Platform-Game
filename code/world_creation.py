@@ -77,6 +77,9 @@ class Fighter(pygame.sprite.Sprite): # Create class for fighters
         self.image = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))  # change character size
         self.rect = self.image.get_rect() # get the rectangle from the scaled image, otherwise the bounding recangle is not scaled with the image
         self.rect.center = (x, y)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+
 
     def move(self, moving_left, moving_right):
 
@@ -106,11 +109,24 @@ class Fighter(pygame.sprite.Sprite): # Create class for fighters
             self.speed_y # set it to 10 (never go past limit)
         dy += self.speed_y  # change in y coordinate
 
-        # check collision with floor (NOT WORKING)
-        if self.rect.bottom + dy > 300: # if underside of player rectangle the bottom + dy (where do player will move to) is beyond the created line
-            dy = 300 - self.rect.bottom # set dy to difference between the floor and the bottom of players feet
-            self.in_air = False # you have hit the floor and are no longer jumping
-            self.jump = False #prevents you from loading a jump while your in air which will be activated when you reach te ground
+        # Check whether you hit/touch something (collision)
+        for tile in world.obstacle_list:
+        # check the collision of the x direction
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height): # colliderect check for collision with other rectangle
+                dx = 0 # if your next move would be to hit something, don't do that so put movement to 0
+            # check collision in y direction
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height): # colliderect check for collision with other rectangle
+                # check if the character is below the obstacle, aka, jumping, aka hitting something above
+                if self.speed_y < 0: # if the speed is negative you are going up
+                    self.speed_y = 0 # set speed to 0, thus stop once you hit obstacle
+                    dy = tile[1].bottom - self.rect.top # change of position will be bottom of the tile - head (top) of character
+                # check if above ground, whether he's falling
+                elif self.speed_y >= 0: # if you're falling and going to hit an object
+                    self.speed_y = 0 # the speed becomes 0
+                    self.in_air = False # you are not in air anymore
+                    dy = tile[1].top - self.rect.bottom # if the change of position will be top of the tile - feet (bottom) character
+                    self.jump = False # prevents you from loading a jump while your in air which will be activated when you reach te ground
+
 
         # update the position of rectangle
         self.rect.x += dx # update position by dx
@@ -146,9 +162,11 @@ class World():
                     if tile >= 0 and tile <= 8: # 0 to 8 are the tiles that are dirt blocks thus obstacles
                         self.obstacle_list.append(tile_data)
                     elif tile >= 9 and tile <= 10: # this is water
-                        pass # water no obstacles
+                        water = Water(img, x * TILE_SIZE, y * TILE_SIZE)
+                        water_group.add(water)
                     elif tile >= 11 and tile <= 14: # decorations, pile of rocks, wooden box, grass, etc
-                        pass #decorations
+                        decoration = Decoration(img, x * TILE_SIZE, y * TILE_SIZE)
+                        decoration_group.add(decoration)
                     elif tile == 15: # create player
                         # select 'player' image, positioned at tile position * size, thus dependend on the lvl size * 0.2 and speed of 5
                         player = Fighter('player', x * TILE_SIZE, y * TILE_SIZE, 0.1, 5)
@@ -158,10 +176,13 @@ class World():
                         enemy_group.add(enemy)
 
                     # TODO: FIX THIS LATER: Add boxes and
-                    # elif tile == 17: # ammo boxes and other droppings (DOESNT WORK, YOU ARE MISSING CODE FOR THIS)
-                    # elif tile == 18:
-                    # elif tile == 19: # should be health later
-                    # elif tile == 20: # create exit
+                    # elif tile == 17: # Itembox ammo boxes and other droppings (DOESNT WORK, YOU ARE MISSING CODE FOR THIS)
+                    # elif tile == 18: # Itembox grenade
+                    # elif tile == 19: # Itembox Health should be health later
+                    elif tile == 20: # create exit
+                        exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
+                        exit_group.add(exit)
+
         return player # later add healthbar
 
     # draw the tiles, thus map
@@ -170,8 +191,38 @@ class World():
             screen.blit(tile[0], tile[1]) # tile was tuple with image in first index and coordinates in second index
 
 
+
+# Create decoration class for things like grass etc
+class Decoration(pygame.sprite.Sprite):
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height())) # devide by 2 because it's in the middle
+
+# Create water
+class Water(pygame.sprite.Sprite):
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height())) # devide by 2 because it's in the middle
+
+# create Exit
+class Exit(pygame.sprite.Sprite):
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height())) # devide by 2 because it's in the middle
+
+
 # Create groups of sprite
 enemy_group = pygame.sprite.Group()
+decoration_group = pygame.sprite.Group()
+water_group = pygame.sprite.Group()
+item_box_group = pygame.sprite.Group()
+exit_group = pygame.sprite.Group()
 
 
 # Create an empty tile list
@@ -191,6 +242,8 @@ world = World() # World clas returns player and health bar
 player = world.process_data(world_data) # add healthbar here later #TODO: add healthbar and don't return enemy, but store in enemy_group (tutorial 6 )
 
 
+
+# ToDO: Fix update in the loop for itemboxes, healthbar, etc
 
 # Create loop to keep the game running, with keyboard presses
 run = True
