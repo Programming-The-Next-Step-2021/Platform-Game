@@ -23,6 +23,8 @@ platforms need to be created. A world or background must be
 made. These all need a certain position in some space. Secondly,
 interactions of the user need to be added. For instance,
 if a user presses left on the keyboard, the character
-object needs to move a certain amount to the left direction.
+object needs to move a certain amount to the left direction. Thirdly character
+object collisions must be programming. Thus, what happens if a player touches the
+ground, or a platform, or an enemy, etc.
 
 ![alt text](Platformer_design.png)
