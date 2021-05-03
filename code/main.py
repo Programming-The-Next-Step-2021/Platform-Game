@@ -2,6 +2,7 @@ import pygame
 import csv
 from world import World
 from config import *
+from player_attributes import HealthBar
 
 from pygame.locals import *
 
@@ -24,6 +25,12 @@ clock = pygame.time.Clock()
 maple_img = pygame.image.load('img/background/maplestory1.png').convert_alpha() # If you add a second image, the order matters, img are put over each other
 maple_img = pygame.transform.scale(maple_img, (SCREEN_WIDTH, SCREEN_HEIGHT))  # change image to size of window
 
+# pick up boxes
+health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
+item_boxes = {
+    'Health': health_box_img
+}
+
 # store tiles in list
 def read_images():
     img_list = [] # tile images
@@ -34,6 +41,14 @@ def read_images():
     return img_list
 
 img_list = read_images()
+
+# define font
+font = pygame.font.SysFont('Futura', 30)
+
+# to draw text on screen like health bar
+def draw_text(text, font, text_col, x, y):
+    img = font.render(text, True, text_col)
+    screen.blit(img,(x,y))
 
 # TODO: Change background to different images you draw (a tree, the sky, etc)
 def draw_bg(): # draw the background
@@ -66,7 +81,8 @@ def read_world_data(level: int):
 
 world = World() # World clas returns player and health bar
 world_data = read_world_data(level)
-player, enemy_group, decoration_group, water_group, item_box_group, exit_group = world.process_data(world_data, img_list) # add healthbar here later #TODO: add healthbar and don't return enemy, but store in enemy_group (tutorial 6 )
+player, enemy_group, decoration_group, water_group, item_box_group, exit_group = world.process_data(world_data, img_list, item_boxes)
+health_bar = HealthBar(10, 10, player.health, PLAYER_HEALTH)
 
 
 
@@ -86,6 +102,8 @@ def main_loop():
         clock.tick(FPS) # runs the game at 60 frames per second
         # update background
         draw_bg() # draw the background
+        # show health of player
+        health_bar.draw(screen, player.health)
         # draw the world map
         world.draw(screen, screen_scroll)
         # draws player, which is a fighter class with a certain position and size
@@ -100,9 +118,11 @@ def main_loop():
         exit_group.update(screen_scroll)
         decoration_group.update(screen_scroll)
         water_group.update(screen_scroll)
+        item_box_group.update(player)
         exit_group.draw(screen)
         decoration_group.draw(screen)
         water_group.draw(screen)
+        item_box_group.draw(screen)
 
         screen_scroll = player.move(moving_left, moving_right, world.obstacle_list)
 

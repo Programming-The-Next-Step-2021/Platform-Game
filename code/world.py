@@ -1,5 +1,5 @@
 from fighter import Fighter
-from terrain_objects import Water, Decoration, Exit
+from terrain_objects import Water, Decoration, Exit, ItemBox
 from config import *
 import pygame
 
@@ -7,7 +7,7 @@ class World():
     def __init__(self):
         self.obstacle_list = []
 
-    def process_data(self, data, img_list):
+    def process_data(self, data, img_list, item_boxes):
 
         # Create groups of sprite
         enemy_group = pygame.sprite.Group()
@@ -45,7 +45,13 @@ class World():
                     # TODO: FIX THIS LATER: Add boxes and
                     # elif tile == 17: # Itembox ammo boxes and other droppings (DOESNT WORK, YOU ARE MISSING CODE FOR THIS)
                     # elif tile == 18: # Itembox grenade
-                    # elif tile == 19: # Itembox Health should be health later
+                    elif tile == 19: # Itembox Health should be health later
+                        item_type = 'Health'
+                        image = item_boxes[item_type]
+                        x = 5
+                        y = 12
+                        item_box = ItemBox(image, item_type, x * TILE_SIZE, y * TILE_SIZE)
+                        item_box_group.add(item_box)
                     elif tile == 20: # create exit
                         exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
                         exit_group.add(exit)

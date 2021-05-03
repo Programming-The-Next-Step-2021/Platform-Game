@@ -23,6 +23,10 @@ class Fighter(pygame.sprite.Sprite): # Create class for fighters
         self.direction = 1 # 1 = looking right, -1 is looking left
         self.speed_y = 0 # no vertical speed
         self.jump = False # you don't jump by default
+        if char_type == 'player': # if player
+            self.health = PLAYER_HEALTH # give player health
+        elif char_type == 'enemy': # if enemey
+            self.health = ENEMY_HEALTH # give enemy health
         self.in_air = True
         self.flip = False # default image is not flipped (thus looking to the right)
         img = pygame.image.load(f'img/{self.char_type}/normal/0.png')  # load character image, dependent on self.char_type an image from a certain directory will be directed
@@ -107,6 +111,7 @@ class Fighter(pygame.sprite.Sprite): # Create class for fighters
 
             # start idling for 1/200 probability
             if self.idling == False and random.randint(1,200) == 1: # if random number between 1 and 200 == 1
+
                 self.idling = True # idling is true
                 self.idling_counter = 50
 
