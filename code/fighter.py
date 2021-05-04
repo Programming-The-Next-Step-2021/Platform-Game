@@ -39,11 +39,13 @@ class Fighter(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
-
+        self.hit_counter = 0
         # ai specific variables
         self.move_counter = 0
+        # self.vision =
         self.idling = False
         self.idling_counter = 0
+
 
 
     def move(self, moving_left, moving_right, obstacle_list):
@@ -114,39 +116,49 @@ class Fighter(pygame.sprite.Sprite):
 
             return screen_scroll # we need to use this later thus need to return it
 
-    def update(self): # TODO: ADD UPDATE FUNCTION
-       pass
+    def update(self, player): # TODO: ADD UPDATE FUNCTION
+        """ Function that adds damage to the player if he is hit by an enemy
+
+        :param player: Player instant from the Fighter class
+        """
+
+        if self.char_type == 'enemy': # if enemy
+            if self.rect.colliderect(player.rect): # collides with player
+                self.hit_counter +=1 # ad 1 to hitcounter
+                if self.hit_counter % 20 == 0: # if 0 is left after dividing by 20 (every 20 iterations)
+                    player.health -= 5 # take health from player
+
 
     def ai(self, obstacle_list):
         """Initialises movement for the enemies
 
          :param obstacle_list: A list with all obstacles
-          """
+        """
 
-            # if self.alive and player.alive:
-            # start idling for 1/200 probability
-            if self.idling == False and random.randint(1,200) == 1: # if random number between 1 and 200 == 1
+        # if self.alive and player.alive:
+        # start idling for 1/200 probability
+        if self.idling == False and random.randint(1,200) == 1: # if random number between 1 and 200 == 1
 
-                self.idling = True # idling is true
-                self.idling_counter = 50
+            self.idling = True # idling is true
+            self.idling_counter = 50
+        # chek if the enemy ai is near the player
+        if self.idling == False: # if they are not idling -> move
+            if self.direction == 1: # if going to right direction
+                ai_moving_right = True # ai is moving right
+            else:
+                ai_moving_right = False
+            ai_moving_left = not ai_moving_right
+            self.move(ai_moving_left, ai_moving_right, obstacle_list)
+            self.move_counter += 1
 
-            if self.idling == False: # if they are not idling -> move
-                if self.direction == 1: # if going to right direction
-                    ai_moving_right = True # ai is moving right
-                else:
-                    ai_moving_right = False
-                ai_moving_left = not ai_moving_right
-                self.move(ai_moving_left, ai_moving_right, obstacle_list)
-                self.move_counter += 1
+            if self.move_counter > TILE_SIZE: # if enemies walk more than 1 tile
+                self.direction *= -1 # flip and walk the other way
+                self.move_counter *= -1
 
-                if self.move_counter > TILE_SIZE: # if enemies walk more than 1 tile
-                    self.direction *= -1 # flip and walk the other way
-                    self.move_counter *= -1
-
-            else: # if they are idling -> don't move
-                self.idling_counter -= 1 # start with 50
-                if self.idling_counter <= 0: # once counter = 0
-                    self.idling = False # start walking again
+        else: # if they are idling -> don't move
+            self.idling_counter -= 1 # start with 50
+            if self.idling_counter <= 0: # once counter = 0
+                self.idling = False # start walking again
 
 
 

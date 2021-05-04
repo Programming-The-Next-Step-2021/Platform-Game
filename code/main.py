@@ -126,7 +126,7 @@ def main_loop():
 
         for enemy in enemy_group:
             enemy.ai(world.obstacle_list)
-            enemy.update()
+            enemy.update(player)
             enemy.draw(screen, screen_scroll)
 
         # draw groups
