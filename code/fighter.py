@@ -4,17 +4,21 @@ import random
 
 
 # Start with player character
-class Fighter(pygame.sprite.Sprite): # Create class for fighters
-    """Fighter class"""
+class Fighter(pygame.sprite.Sprite):
+    """A class that creates a player or an enemy, allows it to move, collide with objects and allows the screen
+     to move with the player
+     """
 
     def __init__(self, char_type, x, y, scale, speed):
         """Initialises the player
 
+        :param char_type: determines the type of fighter (player or enemy)
         :param x: x coordinates of the soldier
         :param y: y coordinates of the soldier
         :param scale: scale of the image/character
         :param speed: determines speed of the character
         """
+
         pygame.sprite.Sprite.__init__(self)
         self.char_type = char_type # what kind of fighter we want to initialize (enemy, player, etc)
         self.speed = speed
@@ -43,6 +47,13 @@ class Fighter(pygame.sprite.Sprite): # Create class for fighters
 
 
     def move(self, moving_left, moving_right, obstacle_list):
+        """Initializes movement of the player, collision with objects and scrolling of the screen
+
+        :param moving_left: True if the player is moving left
+        :param moving_right: True if the player is moving right
+        :param obstacle_list: List of all obstacles
+        :return: Returns screen_scroll if player
+        """
 
         # reset movement of the variables
         screen_scroll = 0 # no scrolling by default
@@ -107,8 +118,12 @@ class Fighter(pygame.sprite.Sprite): # Create class for fighters
        pass
 
     def ai(self, obstacle_list):
-        # if self.alive and player.alive:
+        """Initialises movement for the enemies
 
+         :param obstacle_list: A list with all obstacles
+          """
+
+            # if self.alive and player.alive:
             # start idling for 1/200 probability
             if self.idling == False and random.randint(1,200) == 1: # if random number between 1 and 200 == 1
 
@@ -138,6 +153,13 @@ class Fighter(pygame.sprite.Sprite): # Create class for fighters
 
 
     def draw(self, screen, screen_scroll): # last thing you want to happen
+        """ Draws images on the actual screen
+
+        :param screen: The screen that you initialize
+        :param screen_scroll: A variable with a default of 0 to enable scrolling of the screen when the
+         player is moving
+         """
+
         if self.char_type == 'enemy': # if enemy
             self.rect.x += screen_scroll  # move x coordinate of enemies relative to players movement
         # screen.blit : Put image of player on screen with coordinates of self.rect

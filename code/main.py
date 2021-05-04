@@ -33,6 +33,10 @@ item_boxes = {
 
 # store tiles in list
 def read_images():
+    """ Puts all tile images in a list
+
+    :return: A list with all tile images
+    """
     img_list = [] # tile images
     for x in range(TILE_TYPES):
         img = pygame.image.load(f'img/tile/{x}.png') # loop through images in tile folder
@@ -47,23 +51,31 @@ font = pygame.font.SysFont('Futura', 30)
 
 # to draw text on screen like health bar
 def draw_text(text, font, text_col, x, y):
+    """ Allow you to draw text on the screen
+
+    :param text: Text that you want to type
+    :param font: The desired font of the text
+    :param text_col: The desired color of the text
+    :param x: The x desired coordinate on the screen
+    :param y: The y desired coordinate on the screen
+    """
     img = font.render(text, True, text_col)
     screen.blit(img,(x,y))
 
 # TODO: Change background to different images you draw (a tree, the sky, etc)
 def draw_bg(): # draw the background
+    """ Draws the background
+
+    """
     screen.fill(BG)
     screen.blit(maple_img, (0,0))
 
-# IMPORT FIGHTER CLASS
-
-# IMPORT
-
-
-
-
-
 def read_world_data(level: int):
+    """ Reads the data of the world for the chosen level
+
+    :param level: The desired level to display
+    :return: The data needed to load the level
+    """
     # Create an empty tile list
     world_data = []
     for row in range(ROWS):
@@ -90,6 +102,9 @@ health_bar = HealthBar(10, 10, player.health, PLAYER_HEALTH)
 
 # Create loop to keep the game running, with keyboard presses
 def main_loop():
+    """ The main loop that runs the whole game allowing you to actually play it
+
+    """
     run = True
     screen_scroll = 0
     bg_scroll = 0
@@ -118,7 +133,7 @@ def main_loop():
         exit_group.update(screen_scroll)
         decoration_group.update(screen_scroll)
         water_group.update(screen_scroll)
-        item_box_group.update(player)
+        item_box_group.update(player, screen_scroll)
         exit_group.draw(screen)
         decoration_group.draw(screen)
         water_group.draw(screen)

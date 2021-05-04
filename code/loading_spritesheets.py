@@ -11,6 +11,8 @@ pygame.display.set_caption('Spritesheets')
 
 
 class SpriteSheet():
+""" Class used to grab images out of a sprite sheet. """
+
     def __init__(self, image):
         self.sheet = image
 

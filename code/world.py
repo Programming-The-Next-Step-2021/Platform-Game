@@ -4,10 +4,18 @@ from config import *
 import pygame
 
 class World():
+    """A class that that creates the world, with all object in it (e.g., players, enemies, environment, trees, etc)"""
     def __init__(self):
         self.obstacle_list = []
 
     def process_data(self, data, img_list, item_boxes):
+        """ Processes the data of the world into usable images to draw on the screen.
+
+        :param data: A csv file with integers that correspond to images to create the world with
+        :param img_list: The images that correspond to the number in the data file
+        :param item_boxes: A dictionary with the type of box and image of the box in it
+        :return: A tuple containing: player, enemy_group, decoration_group, water_group, item_box_group, exit_group
+        """
 
         # Create groups of sprite
         enemy_group = pygame.sprite.Group()
@@ -48,8 +56,8 @@ class World():
                     elif tile == 19: # Itembox Health should be health later
                         item_type = 'Health'
                         image = item_boxes[item_type]
-                        x = 5
-                        y = 12
+                        # x = 5
+                        # y = 12
                         item_box = ItemBox(image, item_type, x * TILE_SIZE, y * TILE_SIZE)
                         item_box_group.add(item_box)
                     elif tile == 20: # create exit
@@ -60,6 +68,12 @@ class World():
 
     # draw the tiles, thus map & fix the movement of the map
     def draw(self, screen, screen_scroll):
+        """ Draws images on the actual screen
+
+        :param screen: The screen that you initialize
+        :param screen_scroll: A variable with a default of 0 to enable scrolling of the screen (all tiles)
+         when the player is moving
+        """
         for tile in self.obstacle_list:
             tile[1][0] += screen_scroll # move x coordinate of all tiles to the opposite change of direction of the player
             screen.blit(tile[0], tile[1]) # tile was tuple with image in first index and coordinates in second index
