@@ -7,7 +7,7 @@ class HealthBar():
     """ Creates and draw a healthbar on the screen
 
     """
-    def __init__(self, x, y, health, max_health):
+    def __init__(self, x:int, y:int, health, max_health):
         """ Initializes health bar
 
         :param x: x coordinate of the screen depending on where you want the health bar to be

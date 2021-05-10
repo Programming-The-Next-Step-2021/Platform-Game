@@ -121,12 +121,15 @@ def main_loop():
         health_bar.draw(screen, player.health)
         # draw the world map
         world.draw(screen, screen_scroll)
+        # update image to draw of the player
+        player.update_animation()
         # draws player, which is a fighter class with a certain position and size
         player.draw(screen, screen_scroll)
 
         for enemy in enemy_group:
             enemy.ai(world.obstacle_list)
             enemy.update(player)
+            enemy.update_animation()
             enemy.draw(screen, screen_scroll)
 
         # draw groups

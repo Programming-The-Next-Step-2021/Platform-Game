@@ -9,7 +9,7 @@ class Fighter(pygame.sprite.Sprite):
      to move with the player
      """
 
-    def __init__(self, char_type, x, y, scale, speed):
+    def __init__(self, char_type, x, y, scale, speed, facing_left: bool = False):
         """Initialises the player
 
         :param char_type: determines the type of fighter (player or enemy)
@@ -17,6 +17,8 @@ class Fighter(pygame.sprite.Sprite):
         :param y: y coordinates of the soldier
         :param scale: scale of the image/character
         :param speed: determines speed of the character
+        :param facing_left: set to True if the image for the character is facing left
+            (then it will be flipped the right way when walking)
         """
 
         pygame.sprite.Sprite.__init__(self)
@@ -33,8 +35,23 @@ class Fighter(pygame.sprite.Sprite):
             self.health = ENEMY_HEALTH # give enemy health
         self.in_air = True
         self.flip = False # default image is not flipped (thus looking to the right)
-        img = pygame.image.load(f'img/{self.char_type}/normal/0.png')  # load character image, dependent on self.char_type an image from a certain directory will be directed
-        self.image = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))  # change character size
+        self.animation_list = [] # create empty list to put images in 
+        self.frame_index = 0 # index for loading of the images
+        self.update_time = pygame.time.get_ticks() # to track the time when the animation was last updated
+
+        # load all images for the playerss
+        for i in range(4):
+            img = pygame.image.load(f'img/{self.char_type}/normal/{i}.png')  # load character image, dependent on self.char_type an image from a certain directory will be directed
+            if facing_left:
+                img = pygame.transform.flip(img, True, False)
+            # set transparent background
+            PINK = (255, 0, 255)
+            img = img.convert()
+            img.set_colorkey(PINK)
+
+            img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))  # change character size
+            self.animation_list.append(img) # store images in list
+        self.image = self.animation_list[self.frame_index] # use index of images in list needed
         self.rect = self.image.get_rect() # get the rectangle from the scaled image, otherwise the bounding recangle is not scaled with the image
         self.rect.center = (x, y)
         self.width = self.image.get_width()
@@ -162,7 +179,19 @@ class Fighter(pygame.sprite.Sprite):
 
 
 
-
+    def update_animation(self):
+        # update the animation
+        ANIMATION_COOLDOWN = 100 # control speed of animation
+        # updating of image depending on the current frame image
+        self.image = self.animation_list[self.frame_index]
+        # check if enough time has passed since last update of image
+        if pygame.time.get_ticks() - self.update_time > ANIMATION_COOLDOWN:
+            # move the index variable to go to next image
+            self.update_time = pygame.time.get_ticks() # reset timer
+            self.frame_index += 1 # go to next image
+        # if there are no more images (animation has run out), reset back to the start
+        if self.frame_index >= len(self.animation_list): # if current image index is bigger than lenght of all images
+            self.frame_index = 0 # the first image is loaded again
 
     def draw(self, screen, screen_scroll): # last thing you want to happen
         """ Draws images on the actual screen

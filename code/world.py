@@ -44,10 +44,10 @@ class World():
                         decoration_group.add(decoration)
                     elif tile == 15: # create player
                         # select 'player' image, positioned at tile position * size, thus dependend on the lvl size * 0.2 and speed of 5
-                        player = Fighter('player', x * TILE_SIZE, y * TILE_SIZE, PLAYER_SCALE, PLAYER_SPEED)
+                        player = Fighter('player', x * TILE_SIZE, y * TILE_SIZE, PLAYER_SCALE, PLAYER_SPEED, facing_left = True)
                     elif tile == 16: # create enemies
                         # select 'enemy' image, at tile position * size, image size 1 and speed of 5
-                        enemy = Fighter('enemy', x * TILE_SIZE, y * TILE_SIZE, ENEMY_SCALE, ENEMY_SPEED)
+                        enemy = Fighter('enemy', x * TILE_SIZE, y * TILE_SIZE, ENEMY_SCALE, ENEMY_SPEED, facing_left = True)
                         enemy_group.add(enemy)
 
                     # TODO: FIX THIS LATER: Add boxes and
