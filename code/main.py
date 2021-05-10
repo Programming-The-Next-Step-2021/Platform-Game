@@ -142,7 +142,15 @@ def main_loop():
         water_group.draw(screen)
         item_box_group.draw(screen)
 
-        screen_scroll = player.move(moving_left, moving_right, world.obstacle_list)
+        # update action of the player
+        if player.alive: # if the player is alive
+            if moving_left or moving_right: # if he's moving
+                player.update_action(1) #1: running
+            else:
+                player.update_action(0) #0: chilling
+            screen_scroll = player.move(moving_left, moving_right, world.obstacle_list)
+
+        # screen_scroll = player.move(moving_left, moving_right, world.obstacle_list)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: # If you click the x
@@ -154,7 +162,7 @@ def main_loop():
                     moving_left = True # move left
                 if event.key == pygame.K_d: # if key is d
                     moving_right = True # move right
-                if event.key == pygame.K_SPACE: # if spacebar is pressed
+                if event.key == pygame.K_SPACE and player.alive: # if spacebar is pressed
                     player.jump = True # player jumps
 
             # when keyboard button is released

@@ -1,6 +1,7 @@
 from config import *
 import pygame
 import random
+import os
 
 
 # Start with player character
@@ -22,6 +23,7 @@ class Fighter(pygame.sprite.Sprite):
         """
 
         pygame.sprite.Sprite.__init__(self)
+        self.alive = True
         self.char_type = char_type # what kind of fighter we want to initialize (enemy, player, etc)
         self.speed = speed
 
@@ -37,21 +39,45 @@ class Fighter(pygame.sprite.Sprite):
         self.flip = False # default image is not flipped (thus looking to the right)
         self.animation_list = [] # create empty list to put images in 
         self.frame_index = 0 # index for loading of the images
+        self.action = 0 # whether character is moving, or dying or jumping (different animations)
         self.update_time = pygame.time.get_ticks() # to track the time when the animation was last updated
 
-        # load all images for the playerss
-        for i in range(4):
-            img = pygame.image.load(f'img/{self.char_type}/normal/{i}.png')  # load character image, dependent on self.char_type an image from a certain directory will be directed
-            if facing_left:
-                img = pygame.transform.flip(img, True, False)
-            # set transparent background
-            PINK = (255, 0, 255)
-            img = img.convert()
-            img.set_colorkey(PINK)
 
-            img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))  # change character size
-            self.animation_list.append(img) # store images in list
-        self.image = self.animation_list[self.frame_index] # use index of images in list needed
+        # for animation in animation_types:
+        #     # reset temporary list of images
+        #     temp_list = []
+        #     # count number of files in the folder
+        #     num_of_frames = len(os.listdir(f'img/{self.char_type}/{animation}'))
+        #     for i in range(num_of_frames):
+        #         img = pygame.image.load(f'img/{self.char_type}/{animation}/{i}.png').convert_alpha()
+        #         img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
+        #         temp_list.append(img)
+        #     self.animation_list.append(temp_list)
+        #
+
+        # section above needs to be added for this sheit to work
+
+
+        # load all images for the players and their animation
+        animation_types = ['normal', 'run', 'jump', 'death']
+        for animation in animation_types:
+            # reset temporary list of images
+            temp_list = []
+            # count how many files are in the folder
+            num_of_frames = len(os.listdir(f'img/{self.char_type}/{animation}'))
+            for i in range(num_of_frames):
+                img = pygame.image.load(f'img/{self.char_type}/{animation}/{i}.png')  # load character image, dependent on self.char_type an image from a certain directory will be directed
+                if facing_left:
+                    img = pygame.transform.flip(img, True, False)
+                # set transparent background
+                PINK = (255, 0, 255)
+                img = img.convert()
+                img.set_colorkey(PINK)
+                img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))  # change character size
+                temp_list.append(img)
+            self.animation_list.append(temp_list) # store images in list
+
+        self.image = self.animation_list[self.action][self.frame_index] # give action character is in and use index of images in list needed
         self.rect = self.image.get_rect() # get the rectangle from the scaled image, otherwise the bounding recangle is not scaled with the image
         self.rect.center = (x, y)
         self.width = self.image.get_width()
@@ -155,7 +181,7 @@ class Fighter(pygame.sprite.Sprite):
         # if self.alive and player.alive:
         # start idling for 1/200 probability
         if self.idling == False and random.randint(1,200) == 1: # if random number between 1 and 200 == 1
-
+            self.update_action(0)  # 0: idle
             self.idling = True # idling is true
             self.idling_counter = 50
         # chek if the enemy ai is near the player
@@ -166,6 +192,7 @@ class Fighter(pygame.sprite.Sprite):
                 ai_moving_right = False
             ai_moving_left = not ai_moving_right
             self.move(ai_moving_left, ai_moving_right, obstacle_list)
+            self.update_action(1)  # 1: run
             self.move_counter += 1
 
             if self.move_counter > TILE_SIZE: # if enemies walk more than 1 tile
@@ -181,17 +208,25 @@ class Fighter(pygame.sprite.Sprite):
 
     def update_animation(self):
         # update the animation
-        ANIMATION_COOLDOWN = 100 # control speed of animation
         # updating of image depending on the current frame image
-        self.image = self.animation_list[self.frame_index]
+        self.image = self.animation_list[self.action][self.frame_index]
         # check if enough time has passed since last update of image
         if pygame.time.get_ticks() - self.update_time > ANIMATION_COOLDOWN:
             # move the index variable to go to next image
             self.update_time = pygame.time.get_ticks() # reset timer
             self.frame_index += 1 # go to next image
         # if there are no more images (animation has run out), reset back to the start
-        if self.frame_index >= len(self.animation_list): # if current image index is bigger than lenght of all images
+        if self.frame_index >= len(self.animation_list[self.action]): # if current image index is bigger than lenght of all images of that action
             self.frame_index = 0 # the first image is loaded again
+
+    def update_action(self, new_action):
+        # check if new action is different from the last one
+        if new_action != self.action:
+            self.action = new_action
+            # update animation settings
+            self.frame_index = 0
+            self.update_time = pygame.time.get_ticks()
+
 
     def draw(self, screen, screen_scroll): # last thing you want to happen
         """ Draws images on the actual screen

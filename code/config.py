@@ -19,6 +19,7 @@ ENEMY_SCALE = 0.8
 ENEMY_SPEED = 3
 PLAYER_HEALTH = 100
 ENEMY_HEALTH = 20
+ANIMATION_COOLDOWN = 100 # control speed of animation
 
 # colors
 BG = (99, 68, 191)
