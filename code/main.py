@@ -32,7 +32,7 @@ item_boxes = {
 }
 
 # store tiles in list
-def read_images():
+def read_images() -> list[pygame.Surface]:
     """ Puts all tile images in a list
 
     :return: A list with all tile images
@@ -50,7 +50,7 @@ img_list = read_images()
 font = pygame.font.SysFont('Futura', 30)
 
 # to draw text on screen like health bar
-def draw_text(text, font, text_col, x, y):
+def draw_text(text, font: pygame.font.Font , text_col, x, y): # TODO add typehints
     """ Allow you to draw text on the screen
 
     :param text: Text that you want to type

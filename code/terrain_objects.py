@@ -1,6 +1,7 @@
 
 import pygame
 from config import *
+from fighter import Fighter
 
 class TerrainObject(pygame.sprite.Sprite):
     """Base class for terrain objects
@@ -12,7 +13,7 @@ class TerrainObject(pygame.sprite.Sprite):
     #     self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height())) # devide by 2 because it's in the middle
     # Todo: possibly delete init functions
 
-    def update(self, screen_scroll):
+    def update(self, screen_scroll: int):
         self.rect.x += screen_scroll # move decoration relative to players movement
 
 
@@ -22,7 +23,7 @@ class ItemBox(pygame.sprite.Sprite):
      when he moves.
      """
 
-    def __init__(self, image, item_type, x, y):
+    def __init__(self, image: pygame.Surface, item_type: str, x: int, y: int):
         """ Creates an item dependent on the type
 
         :param image: Image of the item
@@ -37,7 +38,7 @@ class ItemBox(pygame.sprite.Sprite):
         # on the x coordinate its the center, on the y its the top of the rectangle
         self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))
 
-    def update(self, player, screen_scroll):
+    def update(self, player: Fighter, screen_scroll: int):
         """ Allows the screen to move with the player as he walks and 'deletes' health boxes when they
         are picked up
 
@@ -66,7 +67,7 @@ class Decoration(TerrainObject):
     """ A class that creates decoration like plants, rocks, trees, etc.
 
     """
-    def __init__(self, img, x, y):
+    def __init__(self, img: pygame.Surface, x: int, y: int):
         pygame.sprite.Sprite.__init__(self)
         self.image = img
         self.rect = self.image.get_rect()
@@ -77,7 +78,7 @@ class Water(TerrainObject):
     """ A class that creates water.
 
     """
-    def __init__(self, img, x, y):
+    def __init__(self, img: pygame.Surface, x: int, y: int):
         pygame.sprite.Sprite.__init__(self)
         self.image = img
         self.rect = self.image.get_rect()
@@ -88,7 +89,7 @@ class Water(TerrainObject):
 class Exit(TerrainObject):
     """ A class that creates the exit (to enter the next level).
     """
-    def __init__(self, img, x, y):
+    def __init__(self, img: pygame.Surface, x: int, y: int):
         pygame.sprite.Sprite.__init__(self)
         self.image = img
         self.rect = self.image.get_rect()

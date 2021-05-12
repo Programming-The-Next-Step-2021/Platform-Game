@@ -8,7 +8,7 @@ class World():
     def __init__(self):
         self.obstacle_list = []
 
-    def process_data(self, data, img_list, item_boxes):
+    def process_data(self, data: list[list[int]], img_list: list[pygame.Surface], item_boxes: dict[str, pygame.Surface]):
         """ Processes the data of the world into usable images to draw on the screen.
 
         :param data: A csv file with integers that correspond to images to create the world with
@@ -67,7 +67,7 @@ class World():
         return player, enemy_group, decoration_group, water_group, item_box_group, exit_group # later add healthbar
 
     # draw the tiles, thus map & fix the movement of the map
-    def draw(self, screen, screen_scroll):
+    def draw(self, screen: pygame.Surface, screen_scroll: int):
         """ Draws images on the actual screen
 
         :param screen: The screen that you initialize

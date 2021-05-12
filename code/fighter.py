@@ -1,3 +1,4 @@
+from __future__ import annotations
 from config import *
 import pygame
 import random
@@ -10,7 +11,7 @@ class Fighter(pygame.sprite.Sprite):
      to move with the player
      """
 
-    def __init__(self, char_type, x, y, scale, speed, facing_left: bool = False):
+    def __init__(self, char_type: str, x: int, y: int, scale: float, speed: float, facing_left: bool = False):
         """Initialises the player
 
         :param char_type: determines the type of fighter (player or enemy)
@@ -43,22 +44,7 @@ class Fighter(pygame.sprite.Sprite):
         self.update_time = pygame.time.get_ticks() # to track the time when the animation was last updated
 
 
-        # for animation in animation_types:
-        #     # reset temporary list of images
-        #     temp_list = []
-        #     # count number of files in the folder
-        #     num_of_frames = len(os.listdir(f'img/{self.char_type}/{animation}'))
-        #     for i in range(num_of_frames):
-        #         img = pygame.image.load(f'img/{self.char_type}/{animation}/{i}.png').convert_alpha()
-        #         img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
-        #         temp_list.append(img)
-        #     self.animation_list.append(temp_list)
-        #
-
-        # section above needs to be added for this sheit to work
-
-
-        # load all images for the players and their animation
+        # load all images for the players, so that animations work, depending on animation type
         animation_types = ['normal', 'run', 'jump', 'death']
         for animation in animation_types:
             # reset temporary list of images
@@ -67,10 +53,10 @@ class Fighter(pygame.sprite.Sprite):
             num_of_frames = len(os.listdir(f'img/{self.char_type}/{animation}'))
             for i in range(num_of_frames):
                 img = pygame.image.load(f'img/{self.char_type}/{animation}/{i}.png')  # load character image, dependent on self.char_type an image from a certain directory will be directed
-                if facing_left:
+                if facing_left: # if the image is facing left, flip it so that it is facing right
                     img = pygame.transform.flip(img, True, False)
                 # set transparent background
-                PINK = (255, 0, 255)
+                PINK = (255, 0, 255) # needed to create transparant background for players and enemeies
                 img = img.convert()
                 img.set_colorkey(PINK)
                 img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))  # change character size
@@ -91,7 +77,7 @@ class Fighter(pygame.sprite.Sprite):
 
 
 
-    def move(self, moving_left, moving_right, obstacle_list):
+    def move(self, moving_left: bool, moving_right: bool, obstacle_list: list[tuple[pygame.Surface, pygame.Rect]]): #
         """Initializes movement of the player, collision with objects and scrolling of the screen
 
         :param moving_left: True if the player is moving left
@@ -159,10 +145,10 @@ class Fighter(pygame.sprite.Sprite):
 
             return screen_scroll # we need to use this later thus need to return it
 
-    def update(self, player): # TODO: ADD UPDATE FUNCTION
+    def update(self, player: Fighter): # TODO: ADD UPDATE FUNCTION
         """ Function that adds damage to the player if he is hit by an enemy
 
-        :param player: Player instant from the Fighter class
+        :param player: Player instance from the Fighter class
         """
 
         if self.char_type == 'enemy': # if enemy
@@ -172,8 +158,8 @@ class Fighter(pygame.sprite.Sprite):
                     player.health -= 5 # take health from player
 
 
-    def ai(self, obstacle_list):
-        """Initialises movement for the enemies
+    def ai(self, obstacle_list: list[tuple[pygame.Surface, pygame.Rect]]):
+        """Initialises movement for the enemiesA
 
          :param obstacle_list: A list with all obstacles
         """
@@ -207,6 +193,9 @@ class Fighter(pygame.sprite.Sprite):
 
 
     def update_animation(self):
+        """
+        Loops through images (updates) so that an animation is created of the players movement.
+        """
         # update the animation
         # updating of image depending on the current frame image
         self.image = self.animation_list[self.action][self.frame_index]
@@ -219,7 +208,14 @@ class Fighter(pygame.sprite.Sprite):
         if self.frame_index >= len(self.animation_list[self.action]): # if current image index is bigger than lenght of all images of that action
             self.frame_index = 0 # the first image is loaded again
 
-    def update_action(self, new_action):
+    def update_action(self, new_action: int):
+        """
+        Updates what action a player is having (moving, or dying or jumping)
+        For which frame_index = 0 represents standing still, 1 = running/moving, 2 = jumping
+        :param new_action: The next action that the player takes (e.g., jumping)
+        :type new_action: int
+        """
+
         # check if new action is different from the last one
         if new_action != self.action:
             self.action = new_action
@@ -228,7 +224,7 @@ class Fighter(pygame.sprite.Sprite):
             self.update_time = pygame.time.get_ticks()
 
 
-    def draw(self, screen, screen_scroll): # last thing you want to happen
+    def draw(self, screen: pygame.Surface, screen_scroll: int): # last thing you want to happen
         """ Draws images on the actual screen
 
         :param screen: The screen that you initialize
