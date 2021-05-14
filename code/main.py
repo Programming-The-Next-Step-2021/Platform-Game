@@ -1,8 +1,8 @@
 import pygame
 import csv
-from world import World
-from config import *
-from player_attributes import HealthBar
+from code.world import World
+from code.config import *
+from code.player_attributes import HealthBar
 
 from pygame.locals import *
 
@@ -22,6 +22,8 @@ clock = pygame.time.Clock()
 
 
 # load images
+import os
+print(os.listdir())
 maple_img = pygame.image.load('img/background/maplestory1.png').convert_alpha() # If you add a second image, the order matters, img are put over each other
 maple_img = pygame.transform.scale(maple_img, (SCREEN_WIDTH, SCREEN_HEIGHT))  # change image to size of window
 

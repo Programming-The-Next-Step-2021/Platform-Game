@@ -1,6 +1,6 @@
-from fighter import Fighter
-from terrain_objects import Water, Decoration, Exit, ItemBox
-from config import *
+from code.fighter import Fighter
+from code.terrain_objects import Water, Decoration, Exit, ItemBox
+from code.config import *
 import pygame
 
 class World():

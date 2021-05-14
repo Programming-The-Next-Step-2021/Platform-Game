@@ -1,7 +1,7 @@
 
 import pygame
-from config import *
-from fighter import Fighter
+from code.config import *
+from code.fighter import Fighter
 
 class TerrainObject(pygame.sprite.Sprite):
     """Base class for terrain objects

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from config import *
+from code.config import *
 import pygame
 import random
 import os
