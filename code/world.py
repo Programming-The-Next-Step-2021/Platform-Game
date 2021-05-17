@@ -2,13 +2,15 @@ from code.fighter import Fighter
 from code.terrain_objects import Water, Decoration, Exit, ItemBox
 from code.config import *
 import pygame
+from pygame.sprite import Group
 
 class World():
     """A class that that creates the world, with all object in it (e.g., players, enemies, environment, trees, etc)"""
     def __init__(self):
         self.obstacle_list = []
 
-    def process_data(self, data: list[list[int]], img_list: list[pygame.Surface], item_boxes: dict[str, pygame.Surface]):
+    def process_data(self, data: list[list[int]], img_list: list[pygame.Surface], item_boxes: dict[str, pygame.Surface])\
+            -> (Fighter, Group, Group, Group, Group, Group):
         """ Processes the data of the world into usable images to draw on the screen.
 
         :param data: A csv file with integers that correspond to images to create the world with
@@ -67,7 +69,7 @@ class World():
         return player, enemy_group, decoration_group, water_group, item_box_group, exit_group # later add healthbar
 
     # draw the tiles, thus map & fix the movement of the map
-    def draw(self, screen: pygame.Surface, screen_scroll: int):
+    def draw(self, screen: pygame.Surface, screen_scroll: int) -> None:
         """ Draws images on the actual screen
 
         :param screen: The screen that you initialize

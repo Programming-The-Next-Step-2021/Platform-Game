@@ -25,6 +25,9 @@ class TestWorld(unittest.TestCase):
     """
 
     def test_process_data(self):
+        """
+        Test whether in world.py certain objects (e.g., player) are an instance of a certain class (e.g., Fighter)
+        """
         player, enemy_group, decoration_group, water_group, item_box_group, exit_group = \
             world.process_data(world_data, img_list, item_boxes)
         # check whether player is an instance of the Fighter class

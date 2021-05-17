@@ -13,10 +13,10 @@ pygame.display.set_caption('Spritesheets')
 class SpriteSheet():
     """ Class used to grab images out of a sprite sheet. """
 
-    def __init__(self, image):
+    def __init__(self, image) -> None:
         self.sheet = image
 
-    def get_image(self, frame, width, height, scale, colour):
+    def get_image(self, frame, width, height, scale, colour) -> pygame.Surface:
         image = pygame.Surface((width, height)).convert_alpha() # how big you want a blank surface to be where individual images will be drawn on
         # take from the image starting from 0,0 and show it on the above specified surface
         image.blit(self.sheet, (0, 0), ((frame * width), 0, width, height)) # TODO: changed height third before end

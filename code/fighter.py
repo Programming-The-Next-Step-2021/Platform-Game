@@ -11,7 +11,7 @@ class Fighter(pygame.sprite.Sprite):
      to move with the player
      """
 
-    def __init__(self, char_type: str, x: int, y: int, scale: float, speed: float, facing_left: bool = False):
+    def __init__(self, char_type: str, x: int, y: int, scale: float, speed: float, facing_left: bool = False) -> None:
         """Initialises the player
 
         :param char_type: determines the type of fighter (player or enemy)
@@ -77,7 +77,7 @@ class Fighter(pygame.sprite.Sprite):
 
 
 
-    def move(self, moving_left: bool, moving_right: bool, obstacle_list: list[tuple[pygame.Surface, pygame.Rect]]): #
+    def move(self, moving_left: bool, moving_right: bool, obstacle_list: list[tuple[pygame.Surface, pygame.Rect]]) -> int: #
         """Initializes movement of the player, collision with objects and scrolling of the screen
 
         :param moving_left: True if the player is moving left
@@ -145,7 +145,7 @@ class Fighter(pygame.sprite.Sprite):
 
             return screen_scroll # we need to use this later thus need to return it
 
-    def update(self, player: Fighter): # TODO: ADD UPDATE FUNCTION
+    def update(self, player: Fighter) -> None: # TODO: ADD UPDATE FUNCTION
         """ Function that adds damage to the player if he is hit by an enemy
 
         :param player: Player instance from the Fighter class
@@ -158,7 +158,7 @@ class Fighter(pygame.sprite.Sprite):
                     player.health -= 5 # take health from player
 
 
-    def ai(self, obstacle_list: list[tuple[pygame.Surface, pygame.Rect]]):
+    def ai(self, obstacle_list: list[tuple[pygame.Surface, pygame.Rect]]) -> None:
         """Initialises movement for the enemiesA
 
          :param obstacle_list: A list with all obstacles
@@ -192,7 +192,7 @@ class Fighter(pygame.sprite.Sprite):
 
 
 
-    def update_animation(self):
+    def update_animation(self) -> None:
         """
         Loops through images (updates) so that an animation is created of the players movement.
         """
@@ -208,7 +208,7 @@ class Fighter(pygame.sprite.Sprite):
         if self.frame_index >= len(self.animation_list[self.action]): # if current image index is bigger than lenght of all images of that action
             self.frame_index = 0 # the first image is loaded again
 
-    def update_action(self, new_action: int):
+    def update_action(self, new_action: int) -> None:
         """
         Updates what action a player is having (moving, or dying or jumping)
         For which frame_index = 0 represents standing still, 1 = running/moving, 2 = jumping
@@ -224,7 +224,7 @@ class Fighter(pygame.sprite.Sprite):
             self.update_time = pygame.time.get_ticks()
 
 
-    def draw(self, screen: pygame.Surface, screen_scroll: int): # last thing you want to happen
+    def draw(self, screen: pygame.Surface, screen_scroll: int) -> None: # last thing you want to happen
         """ Draws images on the actual screen
 
         :param screen: The screen that you initialize

@@ -17,14 +17,12 @@ pygame.display.set_caption(GAME_TITLE)
 # set the framerate to control speed things
 clock = pygame.time.Clock()
 
-
-
-
-
 # load images
 import os
+
 print(os.listdir())
-maple_img = pygame.image.load('img/background/maplestory1.png').convert_alpha() # If you add a second image, the order matters, img are put over each other
+maple_img = pygame.image.load(
+    'img/background/maplestory1.png').convert_alpha()  # If you add a second image, the order matters, img are put over each other
 maple_img = pygame.transform.scale(maple_img, (SCREEN_WIDTH, SCREEN_HEIGHT))  # change image to size of window
 
 # pick up boxes
@@ -33,26 +31,29 @@ item_boxes = {
     'Health': health_box_img
 }
 
+
 # store tiles in list
 def read_images() -> list[pygame.Surface]:
     """ Puts all tile images in a list
 
     :return: A list with all tile images
     """
-    img_list = [] # tile images
+    img_list = []  # tile images
     for x in range(TILE_TYPES):
-        img = pygame.image.load(f'img/tile/{x}.png') # loop through images in tile folder
-        img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE)) # square
+        img = pygame.image.load(f'img/tile/{x}.png')  # loop through images in tile folder
+        img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))  # square
         img_list.append(img)  # put images in a list
     return img_list
+
 
 img_list = read_images()
 
 # define font
 font = pygame.font.SysFont('Futura', 30)
 
+
 # to draw text on screen like health bar
-def draw_text(text, font: pygame.font.Font , text_col, x, y): # TODO add typehints
+def draw_text(text, font: pygame.font.Font, text_col, x, y) -> None:
     """ Allow you to draw text on the screen
 
     :param text: Text that you want to type
@@ -62,17 +63,19 @@ def draw_text(text, font: pygame.font.Font , text_col, x, y): # TODO add typehin
     :param y: The y desired coordinate on the screen
     """
     img = font.render(text, True, text_col)
-    screen.blit(img,(x,y))
+    screen.blit(img, (x, y))
+
 
 # TODO: Change background to different images you draw (a tree, the sky, etc)
-def draw_bg(): # draw the background
+def draw_bg() -> None:  # draw the background
     """ Draws the background
 
     """
     screen.fill(BG)
-    screen.blit(maple_img, (0,0))
+    screen.blit(maple_img, (0, 0))
 
-def read_world_data(level: int):
+
+def read_world_data(level: int) -> list[list[int]]:
     """ Reads the data of the world for the chosen level
 
     :param level: The desired level to display
@@ -81,29 +84,31 @@ def read_world_data(level: int):
     # Create an empty tile list
     world_data = []
     for row in range(ROWS):
-        r = [-1] * COLS # creates list of 150 columns with -1
+        r = [-1] * COLS  # creates list of 150 columns with -1
         world_data.append(r)
 
     # load in level data and create world
-    with open (f'level_data/level{level}_data.csv', newline = '') as csvfile: # open csv file with numbers for tile sort
-        reader = csv.reader(csvfile, delimiter = ',') # delimiter is how you seperate values (with a comma)
-        for x, row in enumerate(reader): # iterate through rows
-            for y, tile in enumerate(row): # iterate through values in rows
-                world_data[x][y] = int(tile) # set a certain tile of a certain row to the value in the csv
+    with open(f'level_data/level{level}_data.csv', newline='') as csvfile:  # open csv file with numbers for tile sort
+        reader = csv.reader(csvfile, delimiter=',')  # delimiter is how you seperate values (with a comma)
+        for x, row in enumerate(reader):  # iterate through rows
+            for y, tile in enumerate(row):  # iterate through values in rows
+                world_data[x][y] = int(tile)  # set a certain tile of a certain row to the value in the csv
 
     return world_data
 
-world = World() # World clas returns player and health bar
-world_data = read_world_data(level)
-player, enemy_group, decoration_group, water_group, item_box_group, exit_group = world.process_data(world_data, img_list, item_boxes)
-health_bar = HealthBar(10, 10, player.health, PLAYER_HEALTH)
 
+world = World()  # World clas returns player and health bar
+world_data = read_world_data(level)
+player, enemy_group, decoration_group, water_group, item_box_group, exit_group = world.process_data(world_data,
+                                                                                                    img_list,
+                                                                                                    item_boxes)
+health_bar = HealthBar(10, 10, player.health, PLAYER_HEALTH)
 
 
 # ToDO: Fix update in the loop for itemboxes, healthbar, etc
 
 # Create loop to keep the game running, with keyboard presses
-def main_loop():
+def main_loop() -> None:
     """ The main loop that runs the whole game allowing you to actually play it
 
     """
@@ -111,14 +116,13 @@ def main_loop():
     screen_scroll = 0
     bg_scroll = 0
 
-
     # player action variables
     moving_left = False  # to start with you are not moving
     moving_right = False
     while run:
-        clock.tick(FPS) # runs the game at 60 frames per second
+        clock.tick(FPS)  # runs the game at 60 frames per second
         # update background
-        draw_bg() # draw the background
+        draw_bg()  # draw the background
         # show health of player
         health_bar.draw(screen, player.health)
         # draw the world map
@@ -145,39 +149,38 @@ def main_loop():
         item_box_group.draw(screen)
 
         # update action of the player
-        if player.alive: # if the player is alive
-            if moving_left or moving_right: # if he's moving
-                player.update_action(1) #1: running
+        if player.alive:  # if the player is alive
+            if moving_left or moving_right:  # if he's moving
+                player.update_action(1)  # 1: running
             else:
-                player.update_action(0) #0: chilling
+                player.update_action(0)  # 0: chilling
             screen_scroll = player.move(moving_left, moving_right, world.obstacle_list)
 
         # screen_scroll = player.move(moving_left, moving_right, world.obstacle_list)
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: # If you click the x
-                run = False # the window will close
+            if event.type == pygame.QUIT:  # If you click the x
+                run = False  # the window will close
 
             # get keypresses from user we will use wasd to move
-            if event.type == pygame.KEYDOWN: # if key is pressed
-                if event.key == pygame.K_a: # if the key is a
-                    moving_left = True # move left
-                if event.key == pygame.K_d: # if key is d
-                    moving_right = True # move right
-                if event.key == pygame.K_SPACE and player.alive: # if spacebar is pressed
-                    player.jump = True # player jumps
+            if event.type == pygame.KEYDOWN:  # if key is pressed
+                if event.key == pygame.K_a:  # if the key is a
+                    moving_left = True  # move left
+                if event.key == pygame.K_d:  # if key is d
+                    moving_right = True  # move right
+                if event.key == pygame.K_SPACE and player.alive:  # if spacebar is pressed
+                    player.jump = True  # player jumps
 
             # when keyboard button is released
-            if event.type == pygame.KEYUP: # if key is released
-                if event.key == pygame.K_a: # if the key is a
-                    moving_left = False # don't move left
-                if event.key == pygame.K_d: # if key is d
-                    moving_right = False # don't move right
+            if event.type == pygame.KEYUP:  # if key is released
+                if event.key == pygame.K_a:  # if the key is a
+                    moving_left = False  # don't move left
+                if event.key == pygame.K_d:  # if key is d
+                    moving_right = False  # don't move right
                 if event.key == pygame.K_ESCAPE:
-                    run = False # also end game when escape is pressed
+                    run = False  # also end game when escape is pressed
                 # if event.key == pygame.K_SPACE: # if spacebar is pressed
                 #     player.jump = True # player jumps
-
 
         pygame.display.update()
 
