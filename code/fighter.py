@@ -47,9 +47,11 @@ class Fighter(pygame.sprite.Sprite):
         self.attack = False # you don't attack by default
         self.attack_range_rect = pygame.Rect(0, 0, ATTACK_RANGE, 20) # creat attack range with start coordinates (0,0) and width and height
 
+        self.hit = False
+
 
         # load all images for the players, so that animations work, depending on animation type
-        animation_types = ['normal', 'run', 'jump', 'attack', 'death']
+        animation_types = ['normal', 'run', 'hit', 'attack', 'death']
         for animation in animation_types:
             # reset temporary list of images
             temp_list = []
@@ -83,6 +85,7 @@ class Fighter(pygame.sprite.Sprite):
         # self.vision =
         self.idling = False
         self.idling_counter = 0
+        self.hit_animation_counter = pygame.time.get_ticks() # to track the time when the animation was last updated
 
 
 
@@ -180,10 +183,21 @@ class Fighter(pygame.sprite.Sprite):
         self.update_animation()
         self.check_alive()
         if self.char_type == 'enemy': # if enemy
-            if self.rect.colliderect(player.rect): # collides with player
-                self.hit_counter +=1 # ad 1 to hitcounter
-                if self.hit_counter % 20 == 0: # if 0 is left after dividing by 20 (every 20 iterations)
-                    player.health -= 5 # take health from player
+            # create damage to player when hit by enemies
+            if self.alive:  # if enemy died, he cannot do or take damage anymore
+                if self.rect.colliderect(player.rect): # collides with player
+                    self.hit_counter +=1 # ad 1 to hitcounter
+                    if self.hit_counter % 20 == 0: # if 0 is left after dividing by 20 (every 20 iterations)
+                        player.health -= 5 # take health from player
+                        # player.update_action(2)
+                        player.hit = True
+                # create damage to enemies when hit by sword
+                if self.rect.colliderect(player.attack_range_rect): # if enemy collides with sword range
+                    if player.action == 3: # if player is attacking
+                        self.health -= 2 # take 7 health from enemy
+                        # self.update_action(2)
+                        self.hit = True
+
 
 
     def ai(self, obstacle_list: list[tuple[pygame.Surface, pygame.Rect]]) -> None:
@@ -261,9 +275,23 @@ class Fighter(pygame.sprite.Sprite):
             # update animation settings
             self.frame_index = 0
             self.update_time = pygame.time.get_ticks()
+            self.hit_animation_counter = pygame.time.get_ticks()
+
+    def animate_hit(self):
+        """
+        Lets the animation for being hit last longer
+        """
+        # if the value of the counter is smaller than the HIT_ANIMATION_DURATION
+        if pygame.time.get_ticks() - self.hit_animation_counter > HIT_ANIMATION_DURATION:
+            self.hit = False # stop the animation of being hit
+            # move the index variable to go to next image
+            self.hit_animation_counter = pygame.time.get_ticks() # reset timer
 
 
     def check_alive(self):
+        """
+        Checks whether the player is alive, if not alive, death animation is set in action.
+        """
         if self.health <= 0:
             self.health = 0
             self.speed = 0
@@ -285,6 +313,6 @@ class Fighter(pygame.sprite.Sprite):
         # Second argument (self.flip) : if True, image will be flipped on the x axis
         # Third argument (False) : whether image should be flipped horizontally
         screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)
-        pygame.draw.rect(screen, RED, self.rect, 1) # draw red rectangle around the character
-        pygame.draw.rect(screen, RED, self.attack_range_rect, 1)
+        # pygame.draw.rect(screen, RED, self.rect, 1) # draw red rectangle around the character
+        # pygame.draw.rect(screen, RED, self.attack_range_rect, 1)
 

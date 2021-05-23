@@ -13,15 +13,16 @@ ROWS = 16 # rows of the level
 COLS = 150 # colums of the level
 TILE_SIZE = SCREEN_HEIGHT // ROWS  # size of the tiles to create levels with should be screen height/ number of rows
 TILE_TYPES = 21 # there are 21 different tile types
-PLAYER_SCALE = 0.42 # control image size of player
+PLAYER_SCALE = 0.47  # control image size of player
 ENEMY_SCALE = 0.8 # control image size of enemy
 PLAYER_SPEED = 5 # control speed of player
 ENEMY_SPEED = 3 # control the speed of the enmey
 PLAYER_HEALTH = 100
-ENEMY_HEALTH = 20
+ENEMY_HEALTH = 50
 PLAYER_ANIMATION_COOLDOWN = 100 # control speed of animation
 ENEMY_ANIMATION_COOLDOWN = 100 # control speed of animation
 ATTACK_RANGE = 50 # size of rectangle used for getting the attack range of the sword
+HIT_ANIMATION_DURATION = 300
 
 # colors
 BG = (99, 68, 191)

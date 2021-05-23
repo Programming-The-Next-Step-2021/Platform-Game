@@ -131,14 +131,16 @@ def main_loop() -> None:
         # update image to draw of the player
         # player.update_animation()
         player.update(player)
-        # draws player, which is a fighter class with a certain position and size
-        player.draw(screen, screen_scroll)
 
         for enemy in enemy_group:
-            enemy.ai(world.obstacle_list)
+            if enemy.alive:
+                enemy.ai(world.obstacle_list)
             enemy.update(player)
             # enemy.update_animation()
             enemy.draw(screen, screen_scroll)
+
+        # draws player, which is a fighter class with a certain position and size
+        player.draw(screen, screen_scroll)
 
         # draw groups
         exit_group.update(screen_scroll)
@@ -152,14 +154,20 @@ def main_loop() -> None:
 
         # update action of the player
         if player.alive:  # if the player is alive
-            if player.attack:
-                player.update_action(3)
+            if player.attack: # if you are attacking
+                player.update_action(3) # update the action to attacking (3)
+            elif player.hit: # if you are being hit
+                player.update_action(2) # update action to being hit (2)
+                player.animate_hit() # show the animation for being hit
             else:
                 if moving_left or moving_right:  # if he's moving
                     player.update_action(1)  # 1: running
                 else:
-                    player.update_action(0)  # 0: chilling
+                    player.update_action(0)  # 0: chilling, normal
             screen_scroll = player.move(moving_left, moving_right, world.obstacle_list)
+
+
+
 
         # screen_scroll = player.move(moving_left, moving_right, world.obstacle_list)
 
@@ -173,29 +181,29 @@ def main_loop() -> None:
             # if keys[pygame.K_RIGHT] and keys[pygame.K_a]:
             #     player.attack = True
 
-                # # get keypresses from user we will use wasd to move
-                # if event.type == pygame.KEYDOWN:  # if key is pressed
-                #     if event.key == pygame.K_LEFT and player.alive:  # if the key is left arrow
-                #         moving_left = True  # move left
-                #     if event.key == pygame.K_RIGHT and player.alive:  # if key is right arrow
-                #         moving_right = True  # move right
-                #     if event.key == pygame.K_a and player.alive:  # press a to slice
-                #         player.attack = True
-                #     if event.key == pygame.K_SPACE and player.alive:  # if spacebar is pressed
-                #         player.jump = True  # player jumps
-                #
-                # # when keyboard button is released
-                # if event.type == pygame.KEYUP:  # if key is released
-                #     if event.key == pygame.K_LEFT:  # if the key is a
-                #         moving_left = False  # don't move left
-                #     if event.key == pygame.K_RIGHT:  # if key is d
-                #         moving_right = False  # don't move right
-                #     # if event.key == pygame.K_a:
-                #     #     player.attack = False
-                #     if event.key == pygame.K_ESCAPE:
-                #         run = False  # also end game when escape is pressed
-                #     # if event.key == pygame.K_SPACE: # if spacebar is pressed
-                #     #     player.jump = True # player jumps
+            # # get keypresses from user we will use wasd to move
+            # if event.type == pygame.KEYDOWN:  # if key is pressed
+            #     if event.key == pygame.K_LEFT and player.alive:  # if the key is left arrow
+            #         moving_left = True  # move left
+            #     if event.key == pygame.K_RIGHT and player.alive:  # if key is right arrow
+            #         moving_right = True  # move right
+            #     if event.key == pygame.K_a and player.alive:  # press a to slice
+            #         player.attack = True
+            #     if event.key == pygame.K_SPACE and player.alive:  # if spacebar is pressed
+            #         player.jump = True  # player jumps
+            #
+            # # when keyboard button is released
+            # if event.type == pygame.KEYUP:  # if key is released
+            #     if event.key == pygame.K_LEFT:  # if the key is a
+            #         moving_left = False  # don't move left
+            #     if event.key == pygame.K_RIGHT:  # if key is d
+            #         moving_right = False  # don't move right
+            #     # if event.key == pygame.K_a:
+            #     #     player.attack = False
+            #     if event.key == pygame.K_ESCAPE:
+            #         run = False  # also end game when escape is pressed
+            #     # if event.key == pygame.K_SPACE: # if spacebar is pressed
+            #     #     player.jump = True # player jumps
 
             # get keypresses from user we will use wasd to move
             # if event.type == pygame.KEYDOWN:  # if key is pressed
@@ -216,6 +224,8 @@ def main_loop() -> None:
                 player.jump = True  # player jumps
             else:
                 player.jump = False
+            if keys[pygame.K_ESCAPE]:
+                run = False  # also end game when escape is pressed
 
             # # when keyboard button is released
             # if event.type == pygame.KEYUP:  # if key is released
