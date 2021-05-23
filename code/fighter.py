@@ -34,18 +34,21 @@ class Fighter(pygame.sprite.Sprite):
         self.jump = False # you don't jump by default
         if char_type == 'player': # if player
             self.health = PLAYER_HEALTH # give player health
+            self.animation_cooldown = PLAYER_ANIMATION_COOLDOWN
         elif char_type == 'enemy': # if enemey
             self.health = ENEMY_HEALTH # give enemy health
+            self.animation_cooldown = ENEMY_ANIMATION_COOLDOWN
         self.in_air = True
         self.flip = False # default image is not flipped (thus looking to the right)
         self.animation_list = [] # create empty list to put images in 
         self.frame_index = 0 # index for loading of the images
         self.action = 0 # whether character is moving, or dying or jumping (different animations)
         self.update_time = pygame.time.get_ticks() # to track the time when the animation was last updated
+        self.attack = False # you don't attack by default
 
 
         # load all images for the players, so that animations work, depending on animation type
-        animation_types = ['normal', 'run', 'jump', 'death']
+        animation_types = ['normal', 'run', 'jump', 'attack', 'death']
         for animation in animation_types:
             # reset temporary list of images
             temp_list = []
@@ -56,9 +59,14 @@ class Fighter(pygame.sprite.Sprite):
                 if facing_left: # if the image is facing left, flip it so that it is facing right
                     img = pygame.transform.flip(img, True, False)
                 # set transparent background
-                PINK = (255, 0, 255) # needed to create transparant background for players and enemeies
-                img = img.convert()
-                img.set_colorkey(PINK)
+                if self.char_type == 'enemy':
+
+                    BG = (255, 0, 255) # needed to create transparant background for players and enemeies
+                    img = img.convert()
+                    img.set_colorkey(BG)
+                # else:
+                #     BG = (255, 255, 255)  # needed to create transparant background for players and enemeies
+
                 img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))  # change character size
                 temp_list.append(img)
             self.animation_list.append(temp_list) # store images in list
@@ -82,7 +90,9 @@ class Fighter(pygame.sprite.Sprite):
 
         :param moving_left: True if the player is moving left
         :param moving_right: True if the player is moving right
-        :param obstacle_list: List of all obstacles
+        :param obstacle_list: A tuple containing a list of all obstacles. Which is tile information for only things that
+         are seen as obstacles (e.g., things the player can walk into like a wall, or the ground). This info includes
+          an image of the obstacle and a position of the obstacle.
         :return: Returns screen_scroll if player
         """
 
@@ -112,6 +122,7 @@ class Fighter(pygame.sprite.Sprite):
         if self.speed_y > 10: # if speed > 10
             self.speed_y # set it to 10 (never go past limit)
         dy += self.speed_y  # change in y coordinate
+
 
         # Check whether you hit/touch something (collision)
         for tile in obstacle_list:
@@ -144,6 +155,18 @@ class Fighter(pygame.sprite.Sprite):
                 screen_scroll = -dx  # move the screen to the opposite side of where the player is going
 
             return screen_scroll # we need to use this later thus need to return it
+
+    def attack(self):
+        pass
+
+    # def shoot(self):
+    #     if self.shoot_cooldown == 0 and self.ammo > 0:
+    #         self.shoot_cooldown = 20
+    #         bullet = Bullet(self.rect.centerx + (0.6 * self.rect.size[0] * self.direction), self.rect.centery,
+    #                         self.direction)
+    #         bullet_group.add(bullet)
+    #         # reduce ammo
+    #         self.ammo -= 1
 
     def update(self, player: Fighter) -> None: # TODO: ADD UPDATE FUNCTION
         """ Function that adds damage to the player if he is hit by an enemy
@@ -200,12 +223,18 @@ class Fighter(pygame.sprite.Sprite):
         # updating of image depending on the current frame image
         self.image = self.animation_list[self.action][self.frame_index]
         # check if enough time has passed since last update of image
-        if pygame.time.get_ticks() - self.update_time > ANIMATION_COOLDOWN:
+        if self.action == 3:
+            animation_cooldown = self.animation_cooldown / 4
+        else:
+            animation_cooldown = self.animation_cooldown
+        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             # move the index variable to go to next image
             self.update_time = pygame.time.get_ticks() # reset timer
             self.frame_index += 1 # go to next image
         # if there are no more images (animation has run out), reset back to the start
         if self.frame_index >= len(self.animation_list[self.action]): # if current image index is bigger than lenght of all images of that action
+            if self.attack:
+                self.attack = False
             self.frame_index = 0 # the first image is loaded again
 
     def update_action(self, new_action: int) -> None:
