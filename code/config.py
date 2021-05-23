@@ -21,6 +21,7 @@ PLAYER_HEALTH = 100
 ENEMY_HEALTH = 20
 PLAYER_ANIMATION_COOLDOWN = 100 # control speed of animation
 ENEMY_ANIMATION_COOLDOWN = 100 # control speed of animation
+ATTACK_RANGE = 50 # size of rectangle used for getting the attack range of the sword
 
 # colors
 BG = (99, 68, 191)

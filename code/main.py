@@ -129,14 +129,15 @@ def main_loop() -> None:
         # draw the world map
         world.draw(screen, screen_scroll)
         # update image to draw of the player
-        player.update_animation()
+        # player.update_animation()
+        player.update(player)
         # draws player, which is a fighter class with a certain position and size
         player.draw(screen, screen_scroll)
 
         for enemy in enemy_group:
             enemy.ai(world.obstacle_list)
             enemy.update(player)
-            enemy.update_animation()
+            # enemy.update_animation()
             enemy.draw(screen, screen_scroll)
 
         # draw groups

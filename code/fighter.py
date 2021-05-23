@@ -45,6 +45,7 @@ class Fighter(pygame.sprite.Sprite):
         self.action = 0 # whether character is moving, or dying or jumping (different animations)
         self.update_time = pygame.time.get_ticks() # to track the time when the animation was last updated
         self.attack = False # you don't attack by default
+        self.attack_range_rect = pygame.Rect(0, 0, ATTACK_RANGE, 20) # creat attack range with start coordinates (0,0) and width and height
 
 
         # load all images for the players, so that animations work, depending on animation type
@@ -110,6 +111,9 @@ class Fighter(pygame.sprite.Sprite):
             dx = self.speed # your y coordinate increases by your speed
             self.flip = False  # don't flip
             self.direction = 1  # looking right
+        # change the position of the sword range (forward or behind the center of the player, thus letting it go left
+        # or right)
+        self.attack_range_rect.center = (self.rect.centerx + self.attack_range_rect.width//2 * self.direction, self.rect.centery)
 
         # jump
         if self.jump and self.in_air == False: # if jump is true and you are not in the air (prevens double jump)
@@ -173,7 +177,8 @@ class Fighter(pygame.sprite.Sprite):
 
         :param player: Player instance from the Fighter class
         """
-
+        self.update_animation()
+        self.check_alive()
         if self.char_type == 'enemy': # if enemy
             if self.rect.colliderect(player.rect): # collides with player
                 self.hit_counter +=1 # ad 1 to hitcounter
@@ -223,7 +228,7 @@ class Fighter(pygame.sprite.Sprite):
         # updating of image depending on the current frame image
         self.image = self.animation_list[self.action][self.frame_index]
         # check if enough time has passed since last update of image
-        if self.action == 3:
+        if self.action == 3: # speed up the animation for attack because it has more images thus will be animated slower
             animation_cooldown = self.animation_cooldown / 4
         else:
             animation_cooldown = self.animation_cooldown
@@ -235,7 +240,12 @@ class Fighter(pygame.sprite.Sprite):
         if self.frame_index >= len(self.animation_list[self.action]): # if current image index is bigger than lenght of all images of that action
             if self.attack:
                 self.attack = False
-            self.frame_index = 0 # the first image is loaded again
+            # when player/enemy dies, stop looping animation
+            if self.action == 4:
+                self.frame_index = len(self.animation_list[self.action]) - 1
+                # TODO: once dead, show game over screen + restart (peanut) button
+            else:
+                self.frame_index = 0 # the first image is loaded again
 
     def update_action(self, new_action: int) -> None:
         """
@@ -253,6 +263,13 @@ class Fighter(pygame.sprite.Sprite):
             self.update_time = pygame.time.get_ticks()
 
 
+    def check_alive(self):
+        if self.health <= 0:
+            self.health = 0
+            self.speed = 0
+            self.alive = False
+            self.update_action(4)
+
     def draw(self, screen: pygame.Surface, screen_scroll: int) -> None: # last thing you want to happen
         """ Draws images on the actual screen
 
@@ -269,4 +286,5 @@ class Fighter(pygame.sprite.Sprite):
         # Third argument (False) : whether image should be flipped horizontally
         screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)
         pygame.draw.rect(screen, RED, self.rect, 1) # draw red rectangle around the character
+        pygame.draw.rect(screen, RED, self.attack_range_rect, 1)
 
