@@ -140,7 +140,7 @@ def main_loop() -> None:
     # declare these variables as global so that they can be used later again to recreate the world
     # if the players dies
     global player, enemy_group, decoration_group, water_group, item_box_group, exit_group, world, \
-        world_data, health_bar
+        world_data, health_bar, level
 
     start_game = False
     run = True
@@ -210,15 +210,31 @@ def main_loop() -> None:
                         player.update_action(0)  # 0: chilling, normal
                 screen_scroll = player.move(moving_left, moving_right, world.obstacle_list)
 
+                # check whether you hit the exit sign, thus proceed to next lvl
+                lvl_complete = False  # level is not completed by default
+                if pygame.sprite.spritecollide(player, exit_group, False):  # until player run into exit sign
+                    lvl_complete = True # after hit, lvl is completed
+                    if lvl_complete: # if level is complete
+                        level += 1 # load the next lvl
+                        if level <= MAX_LEVELS: # if there are no more levels
+                            # load lvl data and create world
+                            world = World()  # World class returns player and health bar
+                            world_data = read_world_data(level)
+                            player, enemy_group, decoration_group, water_group, item_box_group, exit_group = world.process_data(
+                                world_data,
+                                img_list,
+                                item_boxes)
+                            health_bar = HealthBar(10, 10, player.health, PLAYER_HEALTH)
+
             # if player is dead and the restart button is clicked recreate the whole world again
             else:
                 screen_scroll = 0
                 if restart_button.draw(screen): # if restart button is clicked
                     bg_scroll = 0
                     # reset_lvl() # delete all enem
-                    # load lvl data and create world
 
-                    world = World()  # World clas returns player and health bar
+                    # load lvl data and create world
+                    world = World()  # World class returns player and health bar
                     world_data = read_world_data(level)
                     player, enemy_group, decoration_group, water_group, item_box_group, exit_group = world.process_data(
                         world_data,

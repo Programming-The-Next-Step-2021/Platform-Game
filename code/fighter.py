@@ -156,6 +156,7 @@ class Fighter(pygame.sprite.Sprite):
         # TODO: check whether you fall into water
         # if pygame.sprite.spritecollide(self, water_group, False)
 
+
         # check whether you've fallen of the map and die
         if self.rect.bottom > SCREEN_HEIGHT: # if your feet are bigger than the screen height (aka you've fallen of)
             self.health = 0 # your health is 0
