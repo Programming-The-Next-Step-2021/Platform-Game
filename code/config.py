@@ -24,6 +24,8 @@ ENEMY_ANIMATION_COOLDOWN = 100 # control speed of animation
 ATTACK_RANGE = 50 # size of rectangle used for getting the attack range of the sword
 HIT_ANIMATION_DURATION = 300
 
+start_game = False
+
 # colors
 BG = (99, 68, 191)
 RED = (255, 0, 0)

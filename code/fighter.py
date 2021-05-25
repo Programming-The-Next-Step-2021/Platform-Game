@@ -136,6 +136,10 @@ class Fighter(pygame.sprite.Sprite):
         # check the collision of the x direction
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height): # colliderect check for collision with other rectangle
                 dx = 0 # if your next move would be to hit something, don't do that so put movement to 0
+                # if ai has hat a wall, make them turn around and not run into it continuously
+                if self.char_type == 'enemy': # if enemy (hits something)
+                    self.direction *= -1 # go to the other side
+                    self.move_counter = 0 # reset the movement counter
             # check collision in y direction
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height): # colliderect check for collision with other rectangle
                 # check if the character is below the obstacle, aka, jumping, aka hitting something above
@@ -149,7 +153,17 @@ class Fighter(pygame.sprite.Sprite):
                     dy = tile[1].top - self.rect.bottom # if the change of position will be top of the tile - feet (bottom) character
                     self.jump = False # prevents you from loading a jump while your in air which will be activated when you reach te ground
 
+        # TODO: check whether you fall into water
+        # if pygame.sprite.spritecollide(self, water_group, False)
 
+        # check whether you've fallen of the map and die
+        if self.rect.bottom > SCREEN_HEIGHT: # if your feet are bigger than the screen height (aka you've fallen of)
+            self.health = 0 # your health is 0
+
+        # fix that the player can't fall of the map
+        if self.char_type == 'player':  # only if character is player
+            if self.rect.left + dx < 0 or self.rect.right + dx > SCREEN_WIDTH: # if you fall of left or right side of lvl
+                dx = 0 # make the movement null: stop the movement
         # update the position of rectangle
         self.rect.x += dx # update position by dx
         self.rect.y += dy # update position by dy
@@ -197,6 +211,8 @@ class Fighter(pygame.sprite.Sprite):
                         self.health -= 2 # take 7 health from enemy
                         # self.update_action(2)
                         self.hit = True
+                        self.update_action(2)  # update action to being hit (2)
+                        self.animate_hit()  # show the animation for being hit
 
 
 
