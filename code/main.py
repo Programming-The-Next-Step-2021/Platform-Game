@@ -1,12 +1,13 @@
-import pygame
-import csv
+import pygame # to create game functionalities
+import csv # to load csv's
+from pygame import mixer # to load music and sound effects
 from code.world import World
 from code.config import *
 from code.player_attributes import HealthBar
 from code.button import Button
 
 from pygame.locals import *
-
+mixer.init()
 pygame.init()
 
 level = 1
@@ -18,8 +19,8 @@ pygame.display.set_caption(GAME_TITLE)
 # set the framerate to control speed things
 clock = pygame.time.Clock()
 
-# load images
 
+# load images
 # starting screen background image
 start_screen_img = pygame.image.load('img/game_start/background.png').convert_alpha()
 start_screen_img = pygame.transform.scale(start_screen_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -35,10 +36,21 @@ item_boxes = {
     'Health': health_box_img
 }
 # images for starting screen & exit button # TODO: change these images
-start_img = pygame.image.load( 'img/game_start/start_btn.png').convert_alpha()
-exit_img = pygame.image.load( 'img/game_start/exit_btn.png').convert_alpha()
-restart_img = pygame.image.load( 'img/game_start/restart_btn.png').convert_alpha()
+start_img = pygame.image.load('img/game_start/start_btn.png').convert_alpha()
+exit_img = pygame.image.load('img/game_start/exit_btn.png').convert_alpha()
+restart_img = pygame.image.load('img/game_start/restart_btn.png').convert_alpha()
 
+
+# load sounds and music
+pygame.mixer.music.load('audio/intro.mp3')
+pygame.mixer.music.set_volume(0.5) # adapt loudness (percentage of original volume)
+pygame.mixer.music.play(-1, 0.0, 5000) # how many times you want to loop over the music, how much delay you want, how much fade you want in miliseconds
+
+# sound effects
+jump_sound = pygame.mixer.Sound('audio/jump.wav') # use later in keys section
+jump_sound.set_volume(0.5)
+slash_sound = pygame.mixer.Sound('audio/slash.mp3') # use later in keys section
+slash_sound.set_volume(0.5)
 
 
 
@@ -291,11 +303,13 @@ def main_loop() -> None:
                 moving_right = False
             if keys[pygame.K_a] and player.alive: # press a to slice
                 player.attack = True
+                slash_sound.play() # add slashing sound
             else:
                 # player.attack = False
                 ...
             if keys[pygame.K_SPACE] and player.alive:  # if spacebar is pressed
                 player.jump = True  # player jumps
+                jump_sound.play() # add jumping sound
             else:
                 player.jump = False
             if keys[pygame.K_ESCAPE]:
