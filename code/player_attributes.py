@@ -7,7 +7,7 @@ class HealthBar():
     """ Creates and draw a healthbar on the screen
 
     """
-    def __init__(self, x:int, y:int, health: int, max_health: int):
+    def __init__(self, x:int, y:int, health: int, max_health: int) -> None:
         """ Initializes health bar
 
         :param x: x coordinate of the screen depending on where you want the health bar to be
@@ -20,7 +20,7 @@ class HealthBar():
         self.health = health
         self.max_health = max_health
 
-    def draw(self, screen: pygame.Surface, health: int):
+    def draw(self, screen: pygame.Surface, health: int) -> None:
         """ Draws the health bar on the screen
 
         :param screen: The screen that you initialize
