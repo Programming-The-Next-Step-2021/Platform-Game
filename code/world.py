@@ -18,7 +18,6 @@ class World():
         :param item_boxes: A dictionary with the type of box and image of the box in it
         :return: A tuple containing: player, enemy_group, decoration_group, water_group, item_box_group, exit_group
         """
-
         # Create groups of sprite
         enemy_group = pygame.sprite.Group()
         decoration_group = pygame.sprite.Group()
@@ -65,6 +64,8 @@ class World():
                     elif tile == 20: # create exit
                         exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
                         exit_group.add(exit)
+                    elif tile >= 21: # Rest of the tiles are also obstacles
+                        self.obstacle_list.append(tile_data)
 
         return player, enemy_group, decoration_group, water_group, item_box_group, exit_group # later add healthbar
 

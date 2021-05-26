@@ -34,18 +34,24 @@ class Fighter(pygame.sprite.Sprite):
         self.jump = False # you don't jump by default
         if char_type == 'player': # if player
             self.health = PLAYER_HEALTH # give player health
+            self.animation_cooldown = PLAYER_ANIMATION_COOLDOWN
         elif char_type == 'enemy': # if enemey
             self.health = ENEMY_HEALTH # give enemy health
+            self.animation_cooldown = ENEMY_ANIMATION_COOLDOWN
         self.in_air = True
         self.flip = False # default image is not flipped (thus looking to the right)
         self.animation_list = [] # create empty list to put images in 
         self.frame_index = 0 # index for loading of the images
         self.action = 0 # whether character is moving, or dying or jumping (different animations)
         self.update_time = pygame.time.get_ticks() # to track the time when the animation was last updated
+        self.attack = False # you don't attack by default
+        self.attack_range_rect = pygame.Rect(0, 0, ATTACK_RANGE, 20) # creat attack range with start coordinates (0,0) and width and height
+
+        self.hit = False
 
 
         # load all images for the players, so that animations work, depending on animation type
-        animation_types = ['normal', 'run', 'jump', 'death']
+        animation_types = ['normal', 'run', 'hit', 'attack', 'death']
         for animation in animation_types:
             # reset temporary list of images
             temp_list = []
@@ -56,9 +62,14 @@ class Fighter(pygame.sprite.Sprite):
                 if facing_left: # if the image is facing left, flip it so that it is facing right
                     img = pygame.transform.flip(img, True, False)
                 # set transparent background
-                PINK = (255, 0, 255) # needed to create transparant background for players and enemeies
-                img = img.convert()
-                img.set_colorkey(PINK)
+                if self.char_type == 'enemy':
+
+                    BG = (255, 0, 255) # needed to create transparant background for players and enemeies
+                    img = img.convert()
+                    img.set_colorkey(BG)
+                # else:
+                #     BG = (255, 255, 255)  # needed to create transparant background for players and enemeies
+
                 img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))  # change character size
                 temp_list.append(img)
             self.animation_list.append(temp_list) # store images in list
@@ -74,6 +85,7 @@ class Fighter(pygame.sprite.Sprite):
         # self.vision =
         self.idling = False
         self.idling_counter = 0
+        self.hit_animation_counter = pygame.time.get_ticks() # to track the time when the animation was last updated
 
 
 
@@ -82,7 +94,9 @@ class Fighter(pygame.sprite.Sprite):
 
         :param moving_left: True if the player is moving left
         :param moving_right: True if the player is moving right
-        :param obstacle_list: List of all obstacles
+        :param obstacle_list: A tuple containing a list of all obstacles. Which is tile information for only things that
+         are seen as obstacles (e.g., things the player can walk into like a wall, or the ground). This info includes
+          an image of the obstacle and a position of the obstacle.
         :return: Returns screen_scroll if player
         """
 
@@ -100,6 +114,9 @@ class Fighter(pygame.sprite.Sprite):
             dx = self.speed # your y coordinate increases by your speed
             self.flip = False  # don't flip
             self.direction = 1  # looking right
+        # change the position of the sword range (forward or behind the center of the player, thus letting it go left
+        # or right)
+        self.attack_range_rect.center = (self.rect.centerx + self.attack_range_rect.width//2 * self.direction, self.rect.centery)
 
         # jump
         if self.jump and self.in_air == False: # if jump is true and you are not in the air (prevens double jump)
@@ -113,11 +130,16 @@ class Fighter(pygame.sprite.Sprite):
             self.speed_y # set it to 10 (never go past limit)
         dy += self.speed_y  # change in y coordinate
 
+
         # Check whether you hit/touch something (collision)
         for tile in obstacle_list:
         # check the collision of the x direction
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height): # colliderect check for collision with other rectangle
                 dx = 0 # if your next move would be to hit something, don't do that so put movement to 0
+                # if ai has hat a wall, make them turn around and not run into it continuously
+                if self.char_type == 'enemy': # if enemy (hits something)
+                    self.direction *= -1 # go to the other side
+                    self.move_counter = 0 # reset the movement counter
             # check collision in y direction
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height): # colliderect check for collision with other rectangle
                 # check if the character is below the obstacle, aka, jumping, aka hitting something above
@@ -131,7 +153,18 @@ class Fighter(pygame.sprite.Sprite):
                     dy = tile[1].top - self.rect.bottom # if the change of position will be top of the tile - feet (bottom) character
                     self.jump = False # prevents you from loading a jump while your in air which will be activated when you reach te ground
 
+        # TODO: check whether you fall into water
+        # if pygame.sprite.spritecollide(self, water_group, False)
 
+
+        # check whether you've fallen of the map and die
+        if self.rect.bottom > SCREEN_HEIGHT: # if your feet are bigger than the screen height (aka you've fallen of)
+            self.health = 0 # your health is 0
+
+        # fix that the player can't fall of the map
+        if self.char_type == 'player':  # only if character is player
+            if self.rect.left + dx < 0 or self.rect.right + dx > SCREEN_WIDTH: # if you fall of left or right side of lvl
+                dx = 0 # make the movement null: stop the movement
         # update the position of rectangle
         self.rect.x += dx # update position by dx
         self.rect.y += dy # update position by dy
@@ -145,17 +178,43 @@ class Fighter(pygame.sprite.Sprite):
 
             return screen_scroll # we need to use this later thus need to return it
 
+    def attack(self):
+        pass
+
+    # def shoot(self):
+    #     if self.shoot_cooldown == 0 and self.ammo > 0:
+    #         self.shoot_cooldown = 20
+    #         bullet = Bullet(self.rect.centerx + (0.6 * self.rect.size[0] * self.direction), self.rect.centery,
+    #                         self.direction)
+    #         bullet_group.add(bullet)
+    #         # reduce ammo
+    #         self.ammo -= 1
+
     def update(self, player: Fighter) -> None: # TODO: ADD UPDATE FUNCTION
         """ Function that adds damage to the player if he is hit by an enemy
 
         :param player: Player instance from the Fighter class
         """
-
+        self.update_animation()
+        self.check_alive()
         if self.char_type == 'enemy': # if enemy
-            if self.rect.colliderect(player.rect): # collides with player
-                self.hit_counter +=1 # ad 1 to hitcounter
-                if self.hit_counter % 20 == 0: # if 0 is left after dividing by 20 (every 20 iterations)
-                    player.health -= 5 # take health from player
+            # create damage to player when hit by enemies
+            if self.alive:  # if enemy died, he cannot do or take damage anymore
+                if self.rect.colliderect(player.rect): # collides with player
+                    self.hit_counter +=1 # ad 1 to hitcounter
+                    if self.hit_counter % 20 == 0: # if 0 is left after dividing by 20 (every 20 iterations)
+                        player.health -= 5 # take health from player
+                        # player.update_action(2)
+                        player.hit = True
+                # create damage to enemies when hit by sword
+                if self.rect.colliderect(player.attack_range_rect): # if enemy collides with sword range
+                    if player.action == 3: # if player is attacking
+                        self.health -= 2 # take 7 health from enemy
+                        # self.update_action(2)
+                        self.hit = True
+                        self.update_action(2)  # update action to being hit (2)
+                        self.animate_hit()  # show the animation for being hit
+
 
 
     def ai(self, obstacle_list: list[tuple[pygame.Surface, pygame.Rect]]) -> None:
@@ -200,13 +259,24 @@ class Fighter(pygame.sprite.Sprite):
         # updating of image depending on the current frame image
         self.image = self.animation_list[self.action][self.frame_index]
         # check if enough time has passed since last update of image
-        if pygame.time.get_ticks() - self.update_time > ANIMATION_COOLDOWN:
+        if self.action == 3: # speed up the animation for attack because it has more images thus will be animated slower
+            animation_cooldown = self.animation_cooldown / 4
+        else:
+            animation_cooldown = self.animation_cooldown
+        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             # move the index variable to go to next image
             self.update_time = pygame.time.get_ticks() # reset timer
             self.frame_index += 1 # go to next image
         # if there are no more images (animation has run out), reset back to the start
         if self.frame_index >= len(self.animation_list[self.action]): # if current image index is bigger than lenght of all images of that action
-            self.frame_index = 0 # the first image is loaded again
+            if self.attack:
+                self.attack = False
+            # when player/enemy dies, stop looping animation
+            if self.action == 4:
+                self.frame_index = len(self.animation_list[self.action]) - 1
+                # TODO: once dead, show game over screen + restart (peanut) button
+            else:
+                self.frame_index = 0 # the first image is loaded again
 
     def update_action(self, new_action: int) -> None:
         """
@@ -222,7 +292,28 @@ class Fighter(pygame.sprite.Sprite):
             # update animation settings
             self.frame_index = 0
             self.update_time = pygame.time.get_ticks()
+            self.hit_animation_counter = pygame.time.get_ticks()
 
+    def animate_hit(self):
+        """
+        Lets the animation for being hit last longer
+        """
+        # if the value of the counter is smaller than the HIT_ANIMATION_DURATION
+        if pygame.time.get_ticks() - self.hit_animation_counter > HIT_ANIMATION_DURATION:
+            self.hit = False # stop the animation of being hit
+            # move the index variable to go to next image
+            self.hit_animation_counter = pygame.time.get_ticks() # reset timer
+
+
+    def check_alive(self):
+        """
+        Checks whether the player is alive, if not alive, death animation is set in action.
+        """
+        if self.health <= 0:
+            self.health = 0
+            self.speed = 0
+            self.alive = False
+            self.update_action(4)
 
     def draw(self, screen: pygame.Surface, screen_scroll: int) -> None: # last thing you want to happen
         """ Draws images on the actual screen
@@ -239,5 +330,6 @@ class Fighter(pygame.sprite.Sprite):
         # Second argument (self.flip) : if True, image will be flipped on the x axis
         # Third argument (False) : whether image should be flipped horizontally
         screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)
-        pygame.draw.rect(screen, RED, self.rect, 1) # draw red rectangle around the character
+        # pygame.draw.rect(screen, RED, self.rect, 1) # draw red rectangle around the character
+        # pygame.draw.rect(screen, RED, self.attack_range_rect, 1)
 
