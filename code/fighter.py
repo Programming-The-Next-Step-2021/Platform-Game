@@ -120,7 +120,11 @@ class Fighter(pygame.sprite.Sprite):
 
         # jump
         if self.jump and self.in_air == False: # if jump is true and you are not in the air (prevens double jump)
-            self.speed_y = -11 #changes how how the player jumps
+            self.speed_y = -15 # changes how high the player jumps
+            # add jumping sound
+            jump_sound = pygame.mixer.Sound('audio/jump.wav')  # use later in keys section
+            jump_sound.set_volume(0.5)
+            jump_sound.play()  # add jumping sound
             self.jump = False # jump ends
             self.in_air = True # you are in the air
 
@@ -153,9 +157,9 @@ class Fighter(pygame.sprite.Sprite):
                     dy = tile[1].top - self.rect.bottom # if the change of position will be top of the tile - feet (bottom) character
                     self.jump = False # prevents you from loading a jump while your in air which will be activated when you reach te ground
 
-        # TODO: check whether you fall into water
-        # if pygame.sprite.spritecollide(self, water_group, False)
-
+        # # check whether you hit the water TODO: FIX THIS WATER COLLISION
+        # if pygame.sprite.spritecollide(self, water_group, False):
+        #     self.health = 0
 
         # check whether you've fallen of the map and die
         if self.rect.bottom > SCREEN_HEIGHT: # if your feet are bigger than the screen height (aka you've fallen of)

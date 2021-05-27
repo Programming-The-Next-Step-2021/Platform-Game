@@ -35,22 +35,27 @@ health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
 item_boxes = {
     'Health': health_box_img
 }
-# images for starting screen & exit button # TODO: change these images
+# images for starting screen & exit button
 start_img = pygame.image.load('img/game_start/start_btn.png').convert_alpha()
 exit_img = pygame.image.load('img/game_start/exit_btn.png').convert_alpha()
 restart_img = pygame.image.load('img/game_start/restart_btn.png').convert_alpha()
 
 
-# load sounds and music
+
+# load  music to start playing instantly
 pygame.mixer.music.load('audio/intro.mp3')
-pygame.mixer.music.set_volume(0.5) # adapt loudness (percentage of original volume)
+pygame.mixer.music.set_volume(0.4) # adapt loudness (percentage of original volume)
 pygame.mixer.music.play(-1, 0.0, 5000) # how many times you want to loop over the music, how much delay you want, how much fade you want in miliseconds
 
-# sound effects
-jump_sound = pygame.mixer.Sound('audio/jump.wav') # use later in keys section
-jump_sound.set_volume(0.5)
+
+
+# save sound effects & music for later
 slash_sound = pygame.mixer.Sound('audio/slash.mp3') # use later in keys section
-slash_sound.set_volume(0.5)
+slash_sound.set_volume(0.1)
+lvl2_music = pygame.mixer.Sound('audio/lvl2.mp3') # use later next lvl section
+lvl2_music.set_volume(0.4)
+finish_music = pygame.mixer.Sound('audio/finish.mp3') # use later
+finish_music.set_volume(0.4)
 
 
 
@@ -163,6 +168,11 @@ def main_loop() -> None:
     moving_left = False  # to start with you are not moving
     moving_right = False
 
+    # music false by default
+    lvl2_music_started = False
+    end_music_started = False
+
+
     while run:
         clock.tick(FPS)  # runs the game at 60 frames per second
 
@@ -228,7 +238,11 @@ def main_loop() -> None:
                     lvl_complete = True # after hit, lvl is completed
                     if lvl_complete: # if level is complete
                         level += 1 # load the next lvl
-                        if level <= MAX_LEVELS: # if there are no more levels
+                        pygame.mixer.music.stop() # stop intro & lvl 1 music
+                        if not lvl2_music_started: # if the song has not started yet
+                            lvl2_music.play(-1, 0, 5000) # start new soundtrack
+                            lvl2_music_started = True
+                        if level <= MAX_LEVELS: # if the level equals or is smaller than the max lvl
                             # load lvl data and create world
                             world = World()  # World class returns player and health bar
                             world_data = read_world_data(level)
@@ -237,6 +251,42 @@ def main_loop() -> None:
                                 img_list,
                                 item_boxes)
                             health_bar = HealthBar(10, 10, player.health, PLAYER_HEALTH)
+
+                        # if there are no more levels stop the game
+                        elif level > MAX_LEVELS:
+                            # if finish_music has not started yet, play it
+                            if not end_music_started:
+                                lvl2_music.fadeout(1000)  # stop and fadeout soundtrack loop
+                                # lvl2_music.stop()
+                                finish_music.play(-1, 0, 10000)
+                                end_music_started = True
+
+                            screen_scroll = 0
+                            if restart_button.draw(screen):  # if restart button is clicked
+                                level = 1 # reset lvl
+                                finish_music.fadeout(5000)
+                                # Start music again
+                                pygame.mixer.music.load('audio/intro.mp3')
+                                pygame.mixer.music.set_volume(0.4)  # adapt loudness (percentage of original volume)
+                                pygame.mixer.music.play(-1, 0.0,
+                                                        5000)  # how many times you want to loop over the music, how much delay you want, how much fade you want in miliseconds
+
+                                # Reset music
+                                lvl2_music_started = False
+                                end_music_started = False
+                                bg_scroll = 0
+                                # reset_lvl() # delete all enem
+
+                                # load lvl data and create world
+                                world = World()  # World class returns player and health bar
+                                world_data = read_world_data(level)
+                                player, enemy_group, decoration_group, water_group, item_box_group, exit_group = world.process_data(
+                                    world_data,
+                                    img_list,
+                                    item_boxes)
+                                health_bar = HealthBar(10, 10, player.health, PLAYER_HEALTH)
+
+
 
             # if player is dead and the restart button is clicked recreate the whole world again
             else:
@@ -309,7 +359,7 @@ def main_loop() -> None:
                 ...
             if keys[pygame.K_SPACE] and player.alive:  # if spacebar is pressed
                 player.jump = True  # player jumps
-                jump_sound.play() # add jumping sound
+                # jump_sound.play() # add jumping sound
             else:
                 player.jump = False
             if keys[pygame.K_ESCAPE]:
