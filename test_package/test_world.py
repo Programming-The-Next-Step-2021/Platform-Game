@@ -4,8 +4,7 @@ from code.main import read_world_data, read_images
 import pygame
 import code
 from code.fighter import Fighter
-from code.terrain_objects import Decoration, Water, ItemBox, Exit
-
+from code.terrain_objects import Item, TerrainObject
 
 # Get necessary things for the test
 
@@ -35,14 +34,13 @@ class TestWorld(unittest.TestCase):
         # test whether all enemies are an instance of Fighter class
         self.assertTrue(all([isinstance(enemy, Fighter) for enemy in enemy_group.sprites()]))
         # test whether all decoration is an instance of Decoration class
-        self.assertTrue(all([isinstance(decoration, Decoration) for decoration in decoration_group.sprites()]))
+        self.assertTrue(all([isinstance(decoration, TerrainObject) for decoration in decoration_group.sprites()]))
         # test whether all water is an instance of Water class
-        self.assertTrue(all([isinstance(water, Water) for water in water_group.sprites()]))
-        # test whether all item boxes are an instance of ItemBox class
-        self.assertTrue(all([isinstance(item_box, ItemBox) for item_box in item_box_group.sprites()]))
+        self.assertTrue(all([isinstance(water, TerrainObject) for water in water_group.sprites()]))
+        # test whether all item boxes are an instance of Item class
+        self.assertTrue(all([isinstance(item_box, Item) for item_box in item_box_group.sprites()]))
         # test whether all exits are an instance of Exit class
-        self.assertTrue(all([isinstance(exit, Exit) for exit in exit_group.sprites()]))
-
+        self.assertTrue(all([isinstance(exit, TerrainObject) for exit in exit_group.sprites()]))
 
 
 if __name__ == '__main__':

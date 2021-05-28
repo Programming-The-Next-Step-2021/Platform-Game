@@ -1,24 +1,25 @@
-
 import pygame
 from code.config import *
 from code.fighter import Fighter
 
+
 class TerrainObject(pygame.sprite.Sprite):
-    """Base class for terrain objects
+    """Base class for creating terrain objects like water, plants, rocks and an exit sign.
     """
-    # def __init__(self, img, x, y):
-    #     pygame.sprite.Sprite.__init__(self)
-    #     self.image = img
-    #     self.rect = self.image.get_rect()
-    #     self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height())) # devide by 2 because it's in the middle
-    # Todo: possibly delete init functions
+
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height()))  # devide by 2 because it's
+        # in the middle
 
     def update(self, screen_scroll: int) -> None:
-        self.rect.x += screen_scroll # move decoration relative to players movement
+        self.rect.x += screen_scroll  # move decoration relative to players movement
 
 
 # Create item class for items to pick up
-class ItemBox(pygame.sprite.Sprite):
+class Item(pygame.sprite.Sprite):
     """ Class that creates items to pick up, deletes them when picked up, and allows items to move with the player
      when he moves.
      """
@@ -47,51 +48,15 @@ class ItemBox(pygame.sprite.Sprite):
         """
         self.rect.x += screen_scroll  # move decoration relative to players movement
         # see if player has picked up item
-        if pygame.sprite.collide_rect(self, player): # if collision of player with box
+        if pygame.sprite.collide_rect(self, player):  # if collision of player with box
             # check what kind of box it was
             if self.item_type == 'Health':
                 player.health += 25
-                if player.health > PLAYER_HEALTH: # if health of player is bigger than the maximum allowed
-                    player.health = PLAYER_HEALTH # put it back to max
+                if player.health > PLAYER_HEALTH:  # if health of player is bigger than the maximum allowed
+                    player.health = PLAYER_HEALTH  # put it back to max
 
             # TODO: add money later in the game
             # elif self.item_type == 'Money':
             #     player.money += 5
             # delete the item box once picked up
             self.kill()
-
-
-
-# Create decoration class for things like grass etc
-class Decoration(TerrainObject):
-    """ A class that creates decoration like plants, rocks, trees, etc.
-
-    """
-    def __init__(self, img: pygame.Surface, x: int, y: int) -> None:
-        pygame.sprite.Sprite.__init__(self)
-        self.image = img
-        self.rect = self.image.get_rect()
-        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height())) # devide by 2 because it's in the middle
-
-# Create water
-class Water(TerrainObject):
-    """ A class that creates water.
-
-    """
-    def __init__(self, img: pygame.Surface, x: int, y: int) -> None:
-        pygame.sprite.Sprite.__init__(self)
-        self.image = img
-        self.rect = self.image.get_rect()
-        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height())) # devide by 2 because it's in the middle
-
-
-# create Exit
-class Exit(TerrainObject):
-    """ A class that creates the exit (to enter the next level).
-    """
-    def __init__(self, img: pygame.Surface, x: int, y: int) -> None:
-        pygame.sprite.Sprite.__init__(self)
-        self.image = img
-        self.rect = self.image.get_rect()
-        self.rect.midtop = (x + TILE_SIZE // 2, y + (TILE_SIZE - self.image.get_height())) # devide by 2 because it's in the middle
-

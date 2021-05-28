@@ -1,12 +1,13 @@
-import pygame # to create game functionalities
-import csv # to load csv's
-from pygame import mixer # to load music and sound effects
+import pygame  # to create game functionalities
+import csv  # to load csv's
+from pygame import mixer  # to load music and sound effects
 from code.world import World
 from code.config import *
 from code.player_attributes import HealthBar
 from code.button import Button
 
 from pygame.locals import *
+
 mixer.init()
 pygame.init()
 
@@ -19,39 +20,40 @@ pygame.display.set_caption(GAME_TITLE)
 # set the framerate to control speed things
 clock = pygame.time.Clock()
 
-
 # load images
 # starting screen background image
 start_screen_img = pygame.image.load('img/game_start/background.png').convert_alpha()
 start_screen_img = pygame.transform.scale(start_screen_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # background images in game
-maple_img = pygame.image.load(
-    'img/background/maplestory1.png').convert_alpha()  # If you add a second image, the order matters, img are put over each other
-maple_img = pygame.transform.scale(maple_img, (SCREEN_WIDTH, SCREEN_HEIGHT))  # change image to size of window
+maple1_img = pygame.image.load('img/background/maplestory1.png').convert_alpha()  # If you add a second image, the order
+# matters, img are put over each other
+maple1_img = pygame.transform.scale(maple1_img, (SCREEN_WIDTH, SCREEN_HEIGHT))  # change image to size of window
 
 # pick up boxes images
 health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
 item_boxes = {
     'Health': health_box_img
 }
-# images for starting screen & exit button # TODO: change these images
+# images for starting screen & exit button
 start_img = pygame.image.load('img/game_start/start_btn.png').convert_alpha()
 exit_img = pygame.image.load('img/game_start/exit_btn.png').convert_alpha()
 restart_img = pygame.image.load('img/game_start/restart_btn.png').convert_alpha()
 
-
-# load sounds and music
+# play music to instantly
 pygame.mixer.music.load('audio/intro.mp3')
-pygame.mixer.music.set_volume(0.5) # adapt loudness (percentage of original volume)
-pygame.mixer.music.play(-1, 0.0, 5000) # how many times you want to loop over the music, how much delay you want, how much fade you want in miliseconds
+pygame.mixer.music.set_volume(0.4)  # adapt loudness (percentage of original volume)
+pygame.mixer.music.play(-1, 0.0,
+                        5000)  # how many times you want to loop over the music, how much delay you want, how much
+# fade you want in milliseconds
 
-# sound effects
-jump_sound = pygame.mixer.Sound('audio/jump.wav') # use later in keys section
-jump_sound.set_volume(0.5)
-slash_sound = pygame.mixer.Sound('audio/slash.mp3') # use later in keys section
-slash_sound.set_volume(0.5)
-
+# save sound effects & music for later
+slash_sound = pygame.mixer.Sound('audio/slash.mp3')  # use later in keys section
+slash_sound.set_volume(0.1)
+lvl2_music = pygame.mixer.Sound('audio/lvl2.mp3')  # use later next lvl section
+lvl2_music.set_volume(0.6)
+finish_music = pygame.mixer.Sound('audio/finish.mp3')  # use later
+finish_music.set_volume(0.4)
 
 
 # store tiles in list
@@ -69,8 +71,6 @@ def read_images() -> list[pygame.Surface]:
 
 
 img_list = read_images()
-
-
 
 # define font
 font = pygame.font.SysFont('Futura', 30)
@@ -90,22 +90,12 @@ def draw_text(text, font: pygame.font.Font, text_col, x, y) -> None:
     screen.blit(img, (x, y))
 
 
-# TODO: Change background to different images you draw (a tree, the sky, etc)
-def draw_bg() -> None:  # draw the background
+def draw_bg(color, image) -> None:  # draw the background
     """ Draws the background
 
     """
-    screen.fill(BG)
-    screen.blit(maple_img, (0, 0))
-
-# function that resets level (i.e.,  when one has died)
-def reset_lvl():
-    enemy_group.empty() # will delete all of the instances  of sprites, so deletes all enemies
-    item_box_group.empty() # deletes all items
-    decoration_group.empty() # deletes all decorations (grass, stones, etc)
-    water_group.empty() # deletes all water
-    exit_group.empty() # deletes the exits
-
+    screen.fill(color)
+    screen.blit(image, (0, 0))
 
 
 def read_world_data(level: int) -> list[list[int]]:
@@ -137,12 +127,11 @@ player, enemy_group, decoration_group, water_group, item_box_group, exit_group =
                                                                                                     item_boxes)
 health_bar = HealthBar(10, 10, player.health, PLAYER_HEALTH)
 # add buttons to game
-start_button = Button(SCREEN_WIDTH // 2.2 - 130, SCREEN_HEIGHT // 2 - 50, start_img, 0.7) # x location, y location, and scale
+start_button = Button(SCREEN_WIDTH // 2.2 - 130, SCREEN_HEIGHT // 2 - 50, start_img,
+                      0.7)  # x location, y location, and scale
 exit_button = Button(SCREEN_WIDTH // 2.2 - 130, SCREEN_HEIGHT // 2 + 50, exit_img, 0.7)
 restart_button = Button(SCREEN_WIDTH // 2 - 205, SCREEN_HEIGHT // 2 - 100, restart_img, 1)
 
-
-# ToDO: Fix update in the loop for itemboxes, healthbar, etc
 
 # Create loop to keep the game running, with keyboard presses
 def main_loop() -> None:
@@ -163,27 +152,31 @@ def main_loop() -> None:
     moving_left = False  # to start with you are not moving
     moving_right = False
 
+    # music false by default
+    lvl2_music_started = False
+    end_music_started = False
+
     while run:
         clock.tick(FPS)  # runs the game at 60 frames per second
 
-        if start_game == False:
+        if not start_game:
             # create main menu
-            screen.fill(BG) # get background color
-            screen.blit(start_screen_img, (0, 0))
+            draw_bg(BG, start_screen_img)
+            # screen.fill(BG)  # get background color
+            # screen.blit(start_screen_img, (0, 0))
             # add buttons to screen
-            if start_button.draw(screen): # if start is clicked
+            if start_button.draw(screen):  # if start is clicked
                 start_game = True
-            if exit_button.draw(screen): # if exit is clicked
-                run = False # stop the game (this main loop)
+            if exit_button.draw(screen):  # if exit is clicked
+                run = False  # stop the game (this main loop)
 
-
-        else: # if not, run the game:
+        else:  # if not, run the game:
             # update background
-            draw_bg()  # draw the background
-            # show health of player
-            health_bar.draw(screen, player.health)
+            draw_bg(BG, maple1_img)  # draw the background
             # draw the world map
             world.draw(screen, screen_scroll)
+            # show health of player
+            health_bar.draw(screen, player.health)
             # update image to draw of the player
             # player.update_animation()
             player.update(player)
@@ -210,11 +203,11 @@ def main_loop() -> None:
 
             # update action of the player
             if player.alive:  # if the player is alive
-                if player.attack: # if you are attacking
-                    player.update_action(3) # update the action to attacking (3)
-                elif player.hit: # if you are being hit
-                    player.update_action(2) # update action to being hit (2)
-                    player.animate_hit() # show the animation for being hit
+                if player.attack:  # if you are attacking
+                    player.update_action(3)  # update the action to attacking (3)
+                elif player.hit:  # if you are being hit
+                    player.update_action(2)  # update action to being hit (2)
+                    player.animate_hit()  # show the animation for being hit
                 else:
                     if moving_left or moving_right:  # if he's moving
                         player.update_action(1)  # 1: running
@@ -222,29 +215,65 @@ def main_loop() -> None:
                         player.update_action(0)  # 0: chilling, normal
                 screen_scroll = player.move(moving_left, moving_right, world.obstacle_list)
 
+                # # check whether you hit the water, and if so, you die!
+                if pygame.sprite.spritecollide(player, water_group, False):
+                    player.health = 0
+
                 # check whether you hit the exit sign, thus proceed to next lvl
                 lvl_complete = False  # level is not completed by default
                 if pygame.sprite.spritecollide(player, exit_group, False):  # until player run into exit sign
-                    lvl_complete = True # after hit, lvl is completed
-                    if lvl_complete: # if level is complete
-                        level += 1 # load the next lvl
-                        if level <= MAX_LEVELS: # if there are no more levels
+                    lvl_complete = True  # after hit, lvl is completed
+                    if lvl_complete:  # if level is complete
+                        level += 1  # load the next lvl
+                        pygame.mixer.music.stop()  # stop intro & lvl 1 music
+                        if not lvl2_music_started:  # if the song has not started yet
+                            lvl2_music.play(-1, 0, 5000)  # start new soundtrack
+                            lvl2_music_started = True
+                        if level <= MAX_LEVELS:  # if the level equals or is smaller than the max lvl
                             # load lvl data and create world
                             world = World()  # World class returns player and health bar
                             world_data = read_world_data(level)
-                            player, enemy_group, decoration_group, water_group, item_box_group, exit_group = world.process_data(
-                                world_data,
-                                img_list,
-                                item_boxes)
+                            player, enemy_group, decoration_group, water_group, item_box_group, exit_group = \
+                                world.process_data(world_data, img_list, item_boxes)
                             health_bar = HealthBar(10, 10, player.health, PLAYER_HEALTH)
+
+                        # if there are no more levels stop the game
+                        elif level > MAX_LEVELS:
+                            # if finish_music has not started yet, play it
+                            if not end_music_started:
+                                lvl2_music.fadeout(1000)  # stop and fadeout soundtrack loop
+                                # lvl2_music.stop()
+                                finish_music.play(-1, 0, 10000)
+                                end_music_started = True
+
+                            screen_scroll = 0
+                            if restart_button.draw(screen):  # if restart button is clicked
+                                level = 1  # reset lvl
+                                finish_music.fadeout(5000)
+                                # Start music again
+                                pygame.mixer.music.load('audio/intro.mp3')
+                                pygame.mixer.music.set_volume(0.4)  # adapt loudness (percentage of original volume)
+                                pygame.mixer.music.play(-1, 0.0,
+                                                        5000)  # how many times you want to loop over the music,
+                                # how much delay you want, how much fade you want in miliseconds
+
+                                # Reset music
+                                lvl2_music_started = False
+                                end_music_started = False
+                                bg_scroll = 0
+
+                                # load lvl data and create world
+                                world = World()  # World class returns player and health bar
+                                world_data = read_world_data(level)
+                                player, enemy_group, decoration_group, water_group, item_box_group, exit_group = \
+                                    world.process_data(world_data, img_list, item_boxes)
+                                health_bar = HealthBar(10, 10, player.health, PLAYER_HEALTH)
 
             # if player is dead and the restart button is clicked recreate the whole world again
             else:
                 screen_scroll = 0
-                if restart_button.draw(screen): # if restart button is clicked
+                if restart_button.draw(screen):  # if restart button is clicked
                     bg_scroll = 0
-                    # reset_lvl() # delete all enem
-
                     # load lvl data and create world
                     world = World()  # World class returns player and health bar
                     world_data = read_world_data(level)
@@ -254,44 +283,14 @@ def main_loop() -> None:
                         item_boxes)
                     health_bar = HealthBar(10, 10, player.health, PLAYER_HEALTH)
 
-
         # screen_scroll = player.move(moving_left, moving_right, world.obstacle_list)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:  # If you click the x
                 run = False  # the window will close
 
+            # get keypresses from user we will use arrows to move
             keys = pygame.key.get_pressed()
-            # if keys[pygame.K_LEFT] and keys[pygame.K_a]:
-            #     player.attack = True
-            # if keys[pygame.K_RIGHT] and keys[pygame.K_a]:
-            #     player.attack = True
-
-            # # get keypresses from user we will use wasd to move
-            # if event.type == pygame.KEYDOWN:  # if key is pressed
-            #     if event.key == pygame.K_LEFT and player.alive:  # if the key is left arrow
-            #         moving_left = True  # move left
-            #     if event.key == pygame.K_RIGHT and player.alive:  # if key is right arrow
-            #         moving_right = True  # move right
-            #     if event.key == pygame.K_a and player.alive:  # press a to slice
-            #         player.attack = True
-            #     if event.key == pygame.K_SPACE and player.alive:  # if spacebar is pressed
-            #         player.jump = True  # player jumps
-            #
-            # # when keyboard button is released
-            # if event.type == pygame.KEYUP:  # if key is released
-            #     if event.key == pygame.K_LEFT:  # if the key is a
-            #         moving_left = False  # don't move left
-            #     if event.key == pygame.K_RIGHT:  # if key is d
-            #         moving_right = False  # don't move right
-            #     # if event.key == pygame.K_a:
-            #     #     player.attack = False
-            #     if event.key == pygame.K_ESCAPE:
-            #         run = False  # also end game when escape is pressed
-            #     # if event.key == pygame.K_SPACE: # if spacebar is pressed
-            #     #     player.jump = True # player jumps
-
-            # get keypresses from user we will use wasd to move
             # if event.type == pygame.KEYDOWN:  # if key is pressed
             if keys[pygame.K_LEFT] and player.alive:  # if the key is left arrow
                 moving_left = True  # move left
@@ -301,32 +300,16 @@ def main_loop() -> None:
                 moving_right = True  # move right
             else:
                 moving_right = False
-            if keys[pygame.K_a] and player.alive: # press a to slice
+            if keys[pygame.K_a] and player.alive:  # press a to slice
                 player.attack = True
-                slash_sound.play() # add slashing sound
-            else:
-                # player.attack = False
-                ...
+                slash_sound.play()  # add slashing sound
             if keys[pygame.K_SPACE] and player.alive:  # if spacebar is pressed
                 player.jump = True  # player jumps
-                jump_sound.play() # add jumping sound
+                # jump_sound.play() # add jumping sound
             else:
                 player.jump = False
             if keys[pygame.K_ESCAPE]:
                 run = False  # also end game when escape is pressed
-
-            # # when keyboard button is released
-            # if event.type == pygame.KEYUP:  # if key is released
-            #     if event.key == pygame.K_LEFT:  # if the key is a
-            #         moving_left = False  # don't move left
-            #     if event.key == pygame.K_RIGHT:  # if key is d
-            #         moving_right = False  # don't move right
-            #     # if event.key == pygame.K_a:
-            #     #     player.attack = False
-            #     if event.key == pygame.K_ESCAPE:
-            #         run = False  # also end game when escape is pressed
-            #     # if event.key == pygame.K_SPACE: # if spacebar is pressed
-            #     #     player.jump = True # player jumps
 
         pygame.display.update()
 

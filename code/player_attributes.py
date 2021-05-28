@@ -3,11 +3,13 @@ import pygame
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
+
 class HealthBar():
     """ Creates and draw a healthbar on the screen
 
     """
-    def __init__(self, x:int, y:int, health: int, max_health: int) -> None:
+
+    def __init__(self, x: int, y: int, health: int, max_health: int) -> None:
         """ Initializes health bar
 
         :param x: x coordinate of the screen depending on where you want the health bar to be
@@ -33,5 +35,3 @@ class HealthBar():
         ratio = self.health / self.max_health
         pygame.draw.rect(screen, RED, (self.x, self.y, 150, 20))
         pygame.draw.rect(screen, GREEN, (self.x, self.y, 150 * ratio, 20))
-
-
