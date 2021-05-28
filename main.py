@@ -22,37 +22,37 @@ clock = pygame.time.Clock()
 
 # load images
 # starting screen background image
-start_screen_img = pygame.image.load('img/game_start/background.png').convert_alpha()
+start_screen_img = pygame.image.load('static/img/game_start/background.png').convert_alpha()
 start_screen_img = pygame.transform.scale(start_screen_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # background images in game
-maple1_img = pygame.image.load('img/background/maplestory1.png').convert_alpha()  # If you add a second image, the order
+maple1_img = pygame.image.load('static/img/background/maplestory1.png').convert_alpha()  # If you add a second image, the order
 # matters, img are put over each other
 maple1_img = pygame.transform.scale(maple1_img, (SCREEN_WIDTH, SCREEN_HEIGHT))  # change image to size of window
 
 # pick up boxes images
-health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
+health_box_img = pygame.image.load('static/img/icons/health_box.png').convert_alpha()
 item_boxes = {
     'Health': health_box_img
 }
 # images for starting screen & exit button
-start_img = pygame.image.load('img/game_start/start_btn.png').convert_alpha()
-exit_img = pygame.image.load('img/game_start/exit_btn.png').convert_alpha()
-restart_img = pygame.image.load('img/game_start/restart_btn.png').convert_alpha()
+start_img = pygame.image.load('static/img/game_start/start_btn.png').convert_alpha()
+exit_img = pygame.image.load('static/img/game_start/exit_btn.png').convert_alpha()
+restart_img = pygame.image.load('static/img/game_start/restart_btn.png').convert_alpha()
 
 # play music to instantly
-pygame.mixer.music.load('audio/intro.mp3')
+pygame.mixer.music.load('static/audio/intro.mp3')
 pygame.mixer.music.set_volume(0.4)  # adapt loudness (percentage of original volume)
 pygame.mixer.music.play(-1, 0.0,
                         5000)  # how many times you want to loop over the music, how much delay you want, how much
 # fade you want in milliseconds
 
 # save sound effects & music for later
-slash_sound = pygame.mixer.Sound('audio/slash.mp3')  # use later in keys section
+slash_sound = pygame.mixer.Sound('static/audio/slash.mp3')  # use later in keys section
 slash_sound.set_volume(0.1)
-lvl2_music = pygame.mixer.Sound('audio/lvl2.mp3')  # use later next lvl section
+lvl2_music = pygame.mixer.Sound('static/audio/lvl2.mp3')  # use later next lvl section
 lvl2_music.set_volume(0.6)
-finish_music = pygame.mixer.Sound('audio/finish.mp3')  # use later
+finish_music = pygame.mixer.Sound('static/audio/finish.mp3')  # use later
 finish_music.set_volume(0.4)
 
 
@@ -64,7 +64,7 @@ def read_images() -> list[pygame.Surface]:
     """
     img_list = []  # tile images
     for x in range(TILE_TYPES):
-        img = pygame.image.load(f'img/tile/{x}.png')  # loop through images in tile folder
+        img = pygame.image.load(f'static/img/tile/{x}.png')  # loop through images in tile folder
         img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))  # square
         img_list.append(img)  # put images in a list
     return img_list
@@ -111,7 +111,7 @@ def read_world_data(level: int) -> list[list[int]]:
         world_data.append(r)
 
     # load in level data and create world
-    with open(f'level_data/level{level}_data.csv', newline='') as csvfile:  # open csv file with numbers for tile sort
+    with open(f'static/level_data/level{level}_data.csv', newline='') as csvfile:  # open csv file with numbers for tile sort
         reader = csv.reader(csvfile, delimiter=',')  # delimiter is how you seperate values (with a comma)
         for x, row in enumerate(reader):  # iterate through rows
             for y, tile in enumerate(row):  # iterate through values in rows
@@ -251,7 +251,7 @@ def main_loop() -> None:
                                 level = 1  # reset lvl
                                 finish_music.fadeout(5000)
                                 # Start music again
-                                pygame.mixer.music.load('audio/intro.mp3')
+                                pygame.mixer.music.load('static/audio/intro.mp3')
                                 pygame.mixer.music.set_volume(0.4)  # adapt loudness (percentage of original volume)
                                 pygame.mixer.music.play(-1, 0.0,
                                                         5000)  # how many times you want to loop over the music,
