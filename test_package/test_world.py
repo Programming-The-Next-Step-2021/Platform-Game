@@ -1,6 +1,6 @@
 import unittest
 from code.world import World
-from code.main import read_world_data, read_images
+from main import read_world_data, read_images
 import pygame
 import code
 from code.fighter import Fighter
@@ -8,7 +8,7 @@ from code.terrain_objects import Item, TerrainObject
 
 # Get necessary things for the test
 
-health_box_img = pygame.image.load('img/icons/health_box.png').convert_alpha()
+health_box_img = pygame.image.load('static/img/icons/health_box.png').convert_alpha()
 item_boxes = {
     'Health': health_box_img
 }

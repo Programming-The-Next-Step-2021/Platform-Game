@@ -1,6 +1,6 @@
 import unittest
 import pygame
-from code.main import read_images, read_world_data
+from main import read_images, read_world_data
 
 level = 1  # to test the read_world_data()
 ROWS = 16  # rows of the level needed to test read_world_data()

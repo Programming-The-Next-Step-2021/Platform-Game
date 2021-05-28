@@ -58,9 +58,10 @@ class Fighter(pygame.sprite.Sprite):
             # reset temporary list of images
             temp_list = []
             # count how many files are in the folder
-            num_of_frames = len(os.listdir(f'img/{self.char_type}/{animation}'))
+            imgs = [f for f in os.listdir(f'static/img/{self.char_type}/{animation}') if not f.startswith('.')]
+            num_of_frames = len(imgs)
             for i in range(num_of_frames):
-                img = pygame.image.load(f'img/{self.char_type}/{animation}/{i}.png')  # dependent on self.char_type an
+                img = pygame.image.load(f'static/img/{self.char_type}/{animation}/{i}.png')  # dependent on self.char_type an
                 # image from a certain directory will be directed
                 if facing_left:  # if the image is facing left, flip it so that it is facing right
                     img = pygame.transform.flip(img, True, False)
@@ -128,7 +129,7 @@ class Fighter(pygame.sprite.Sprite):
         if self.jump and self.in_air == False:  # if jump is true and you are not in the air (prevents double jump)
             self.speed_y = -15  # changes how high the player jumps
             # add jumping sound
-            jump_sound = pygame.mixer.Sound('audio/jump.wav')
+            jump_sound = pygame.mixer.Sound('static/audio/jump.wav')
             jump_sound.set_volume(0.5)
             jump_sound.play()  # add jumping sound
             self.jump = False  # jump ends

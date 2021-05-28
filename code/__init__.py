@@ -1,1 +1,1 @@
-# from code.fighter import Fighter
+# from fighter import Fighter

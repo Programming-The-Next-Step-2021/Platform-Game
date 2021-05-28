@@ -40,7 +40,7 @@ HEIGHT = 244
 num_of_frames = 3
 start_pos_y = 0
 
-sprite_sheet_image = pygame.image.load(f'img/enemy/sprite_sheets/{SPRITESHEET_NAME}.png').convert_alpha()
+sprite_sheet_image = pygame.image.load(f'../static/img/enemy/sprite_sheets/{SPRITESHEET_NAME}.png').convert_alpha()
 sprite_sheet = SpriteSheet(sprite_sheet_image)
 action = 'death4'
 
@@ -48,12 +48,12 @@ frames = []
 for frame_num in range(num_of_frames):
     frame = sprite_sheet.get_image(start_pos_y, frame_num, WIDTH, HEIGHT, 1, TRANS)
     frames.append(frame)
-    pygame.image.save(frame, f'img/boss_enemy/{action}/{frame_num}.png')
+    pygame.image.save(frame, f'../static/img/boss_enemy/{action}/{frame_num}.png')
 
-# pygame.image.save(frame_0, 'img/player/normal/0.png')
-# pygame.image.save(frame_1, 'img/player/1.png')
-# pygame.image.save(frame_2, 'img/player/2.png')
-# pygame.image.save(frame_3, 'img/player/3.png')
+# pygame.image.save(frame_0, 'static/img/player/normal/0.png')
+# pygame.image.save(frame_1, 'static/img/player/1.png')
+# pygame.image.save(frame_2, 'static/img/player/2.png')
+# pygame.image.save(frame_3, 'static/img/player/3.png')
 
 
 run = True
