@@ -42,7 +42,7 @@ restart_img = pygame.image.load('img/game_start/restart_btn.png').convert_alpha(
 
 
 
-# load  music to start playing instantly
+# play music to instantly
 pygame.mixer.music.load('audio/intro.mp3')
 pygame.mixer.music.set_volume(0.4) # adapt loudness (percentage of original volume)
 pygame.mixer.music.play(-1, 0.0, 5000) # how many times you want to loop over the music, how much delay you want, how much fade you want in miliseconds
@@ -53,7 +53,7 @@ pygame.mixer.music.play(-1, 0.0, 5000) # how many times you want to loop over th
 slash_sound = pygame.mixer.Sound('audio/slash.mp3') # use later in keys section
 slash_sound.set_volume(0.1)
 lvl2_music = pygame.mixer.Sound('audio/lvl2.mp3') # use later next lvl section
-lvl2_music.set_volume(0.4)
+lvl2_music.set_volume(0.6)
 finish_music = pygame.mixer.Sound('audio/finish.mp3') # use later
 finish_music.set_volume(0.4)
 
@@ -102,15 +102,6 @@ def draw_bg() -> None:  # draw the background
     """
     screen.fill(BG)
     screen.blit(maple_img, (0, 0))
-
-# function that resets level (i.e.,  when one has died)
-def reset_lvl():
-    enemy_group.empty() # will delete all of the instances  of sprites, so deletes all enemies
-    item_box_group.empty() # deletes all items
-    decoration_group.empty() # deletes all decorations (grass, stones, etc)
-    water_group.empty() # deletes all water
-    exit_group.empty() # deletes the exits
-
 
 
 def read_world_data(level: int) -> list[list[int]]:
@@ -218,6 +209,8 @@ def main_loop() -> None:
             water_group.draw(screen)
             item_box_group.draw(screen)
 
+
+
             # update action of the player
             if player.alive:  # if the player is alive
                 if player.attack: # if you are attacking
@@ -231,6 +224,10 @@ def main_loop() -> None:
                     else:
                         player.update_action(0)  # 0: chilling, normal
                 screen_scroll = player.move(moving_left, moving_right, world.obstacle_list)
+
+                # # check whether you hit the water, and if so, you die!
+                if pygame.sprite.spritecollide(player, water_group, False):
+                    player.health = 0
 
                 # check whether you hit the exit sign, thus proceed to next lvl
                 lvl_complete = False  # level is not completed by default
@@ -275,7 +272,6 @@ def main_loop() -> None:
                                 lvl2_music_started = False
                                 end_music_started = False
                                 bg_scroll = 0
-                                # reset_lvl() # delete all enem
 
                                 # load lvl data and create world
                                 world = World()  # World class returns player and health bar
@@ -293,8 +289,6 @@ def main_loop() -> None:
                 screen_scroll = 0
                 if restart_button.draw(screen): # if restart button is clicked
                     bg_scroll = 0
-                    # reset_lvl() # delete all enem
-
                     # load lvl data and create world
                     world = World()  # World class returns player and health bar
                     world_data = read_world_data(level)

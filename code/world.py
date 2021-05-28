@@ -25,14 +25,13 @@ class World():
         item_box_group = pygame.sprite.Group()
         exit_group = pygame.sprite.Group()
 
-        # iterate through every value in the level data file
+        # iterate through every value in the level data file which corresponds to images
         for y, row in enumerate(data): # go through rows of the file
             for x, tile in enumerate(row): # go through tiles of the row
                 if tile >= 0: # ignore -1s
                     img = img_list[tile] # tile at position x will become the tile from the image list made earlier
                     img_rect = img.get_rect()
-                    img_rect.x = x * TILE_SIZE # x coordinate of where you put the rectangle of te the image == the
-                    # x (tile position) * the size of the image
+                    img_rect.x = x * TILE_SIZE # x coordinate of where you put the rectangle of te the image
                     img_rect.y = y * TILE_SIZE # same but for y coordinate
                     tile_data = (img, img_rect) # tuple with info about tile: the image and the position
                     if tile >= 0 and tile <= 8: # 0 to 8 are the tiles that are dirt blocks thus obstacles
@@ -51,27 +50,33 @@ class World():
                         enemy = Fighter('enemy', x * TILE_SIZE, y * TILE_SIZE, ENEMY_SCALE, ENEMY_SPEED, facing_left = True)
                         enemy_group.add(enemy)
 
-                    # TODO: FIX THIS LATER: Add boxes and
-                    # elif tile == 17: # Itembox ammo boxes and other droppings (DOESNT WORK, YOU ARE MISSING CODE FOR THIS)
-                    # elif tile == 18: # Itembox grenade
-                    elif tile == 19: # Itembox Health should be health later
+                    # TODO: Later add money & other items in itemboxes
+                    # elif tile == 17: # Itembox money
+                    # elif tile == 18: # Itembox sword upgrades that do more damage
+                    elif tile == 19:
                         item_type = 'Health'
                         image = item_boxes[item_type]
-                        # x = 5
-                        # y = 12
                         item_box = ItemBox(image, item_type, x * TILE_SIZE, y * TILE_SIZE)
                         item_box_group.add(item_box)
                     elif tile == 20: # create exit
                         exit = Exit(img, x * TILE_SIZE, y * TILE_SIZE)
                         exit_group.add(exit)
-                    elif tile >= 21: # Rest of the tiles are also obstacles
+                    elif tile == 35: # End bosss
+                        # select 'enemy' image, at tile position * size, image size 1 and speed of 5
+                        enemy = Fighter('boss_enemy', x * TILE_SIZE, y * TILE_SIZE, BOSS_ENEMY_SCALE, ENEMY_SPEED,
+                                        facing_left=True)
+                        enemy_group.add(enemy)
+                    # elif tile >= 21: # Rest of the tiles are also obstacles
+                    else:
                         self.obstacle_list.append(tile_data)
+
+
 
         return player, enemy_group, decoration_group, water_group, item_box_group, exit_group # later add healthbar
 
     # draw the tiles, thus map & fix the movement of the map
     def draw(self, screen: pygame.Surface, screen_scroll: int) -> None:
-        """ Draws images on the actual screen
+        """ Draws images on the screen
 
         :param screen: The screen that you initialize
         :param screen_scroll: A variable with a default of 0 to enable scrolling of the screen (all tiles)
