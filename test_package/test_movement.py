@@ -2,6 +2,8 @@ import unittest
 import pygame
 from code.fighter import Fighter
 
+# TODO: It's not working
+
 SCREEN_WIDTH = 800  # use capslock for constants (you don't want to change values)
 SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)
 ROWS = 16  # rows of the level
